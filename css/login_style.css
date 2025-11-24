@@ -1,0 +1,106 @@
+*{
+    font-family: system-ui;
+    font-size: 2.5vh;
+}
+body{
+    height:100vh;
+    width: 100vw;
+}
+
+.logo-container {
+    grid-column: 1 / 3;
+    display: flex;
+    justify-content: center; 
+}
+
+.wrapper{
+    background-image: url('../assets/bg_login.png');
+    background-repeat: no-repeat; 
+    background-size: cover;        
+    background-position: center;   
+    height:100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+form {
+    width:30vw;
+    height: auto;
+    border: 3px solid #f1f1f1;
+    border-radius: 10px;
+}
+
+.login_container {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+input[type=text], input[type=password] {
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin: 8px 10px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+label[for=email]{
+    grid-column: 1;
+    grid-row:1;
+    margin-top: 15px;
+    margin-bottom:10px;
+    margin-left:10px;
+    align-items: center;
+}
+label[for=password]{
+    grid-column: 1;
+    grid-row:3;
+    margin:10px;
+}
+input[type=text]{
+    grid-column: 1/-1;
+    grid-row:2;
+}
+input[type=password]{
+    grid-column: 1/-1;
+    grid-row:4;
+}
+
+a {
+    display: block;
+    width: 100%;
+    border-radius: 10px;
+    background-color: #C43E4A;
+    color: white;
+    padding: 14px 20px;
+    border: none;
+    cursor: pointer;
+    margin: 10px 0;
+    text-align: center;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+input, a {
+    width: 100%;
+}
+
+.forgot{
+    grid-row:6;
+    grid-column:1;
+    margin:10px;
+}
+.register{
+    text-align: right;
+    margin:10px;
+    grid-row:6;
+    grid-column:2;
+}
+button:hover {
+    opacity: 0.8;
+}
+
