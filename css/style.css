@@ -1,0 +1,36 @@
+/* Header styling */
+header{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #C43E4A;
+  color: #fff;
+  z-index: 10;
+}
+
+.logout_btn{
+    float: right;
+    size: 70px;
+}
+
+/* Button styling */
+button {
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #aaaaaa;
+    border-radius: 5px;
+    font-size: 20px;
+    font-family: "Epilogue-Regular", sans-serif;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #f0f0f0;
+}

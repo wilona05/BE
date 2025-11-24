@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css"  href="../css/homepage_admin.css">
+    <link rel="stylesheet" type="text/css"  href="../css/style.css">
+    <title>Homepage Admin</title>
+</head>
+<body>
+    <header>
+        <div class="header">
+            <button type="button" class="logout_btn" onclick="window.location.href='/'">Log Out</button>
+        </div>
+    </header>
+    
+    <h1>Histori Reservasi</h1>
+
+    <div class="content">
+        <div class="left">
+            <div class="container">
+                <img src="../assets/logo.png" alt="gambar">
+
+                <table> 
+                    <thead>
+                        <tr>
+                            <th>Ringkasan Reservasi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total Reservasi: 2</td>
+                        </tr>
+                        <tr>
+                            <td>Total Reservasi Aktif: 1</td>
+                        </tr>
+                        <tr>
+                            <td>Total Reservasi Selesai: 1</td>
+                        </tr>
+                        <tr>
+                            <td>Total Reservasi Dibatalkan: -</td>
+                        </tr>
+                        <tr>
+                            <td>Jumlah Pemesan Unik: 1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="right">
+            <div class="container">
+                <table> 
+                    <thead>
+                        <tr>
+                            <th>Id Reservasi</th>
+                            <th>Tanggal Reservasi</th>
+                            <th>Waktu (Mulai - Selesai)</th>
+                            <th>Nama Pemesan</th>
+                            <th>Kode Meja</th>
+                            <th>Status Reservasi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td> 
+                            <td>17-Nov-25</td> 
+                            <td>12:00 - 13:00</td>
+                            <td>Dodo</td> 
+                            <td>A1</td>
+                            <td>
+                                <select name="statusReservasi">
+                                    <option value="Aktif">Aktif</option>
+                                    <option value="Selesai" selected>Selesai</option>
+                                    <option value="Dibatalkan">Dibatalkan</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td> 
+                            <td>18-Nov-25</td> 
+                            <td>12:00 - 13:00</td>
+                            <td>Dodo</td> 
+                            <td>A1</td>
+                            <td>
+                                <select name="statusReservasi">
+                                    <option value="Aktif" selected>Aktif</option>
+                                    <option value="Selesai">Selesai</option>
+                                    <option value="Dibatalkan">Dibatalkan</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+h1 {
+    text-align: center;
+    margin: 10vh auto;
+}
+
+/* Content styling */
+.content{
+    overflow: auto;
+    display: flex;
+    width: 90vw;  
+    margin: 3vh auto;
+    font-weight: 500;
+    gap: 5vw;
+}
+
+.container{
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.left{
+    flex: 3;
+    overflow-y: auto;
+}
+
+.right{
+    flex: 7;
+    overflow-y: auto;
+}
+
+/* Table styling */
+table{
+    text-align: left;
+    text-wrap: wrap;
+    padding: 10px;
+    color: black;
+    width: 100%;
+    table-layout:fixed;
+}
+
+th {
+    background-color: black;
+    color: white;
+    font-weight: bold; /* Teks tebal untuk header */
+}
+
+tr:nth-child(even){
+    background-color: #e2e2e2;
+}
