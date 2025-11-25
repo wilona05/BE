@@ -4,19 +4,6 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f3f3f3;
-}
-
-main {
-    margin-top: 80px;
-    padding: 40px 20px;
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
 /* Informasi Kulineria */
 .info {
     margin-top: 20px; 

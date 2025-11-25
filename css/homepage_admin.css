@@ -1,6 +1,6 @@
 h1 {
     text-align: center;
-    margin: 10vh auto;
+    margin: 2vh auto;
 }
 
 /* Content styling */
@@ -49,4 +49,9 @@ th {
 
 tr:nth-child(even){
     background-color: #e2e2e2;
+}
+
+.container img{
+    width: 100%;
+    height: auto;
 }
