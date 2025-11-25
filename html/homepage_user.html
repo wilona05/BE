@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" type="text/css" href="../css/homepage_user.css">
+    <title>Kulineria - Restaurant Reservation</title>
+</head>
+<body>
+    <header>        
+        <div class="leftHeader">
+            <img src="../assets/kulineria-new [png].png" alt="Kulineria Logo" class="logo">
+        </div>
+        <div class="rightHeader">
+            <a href="login.html">
+                <button type="button" class="logout_btn">Log Out</button>
+            </a>
+        </div>  
+    </header>
+
+    <main>
+        <div class="info">
+            <h1>Kulineria</h1>
+            <div class="desc">
+                <div class="descLine">Restoran <i>fine dining</i> dengan tema kuliner Indonesia</div>
+                <div class="descLine">Jl. Braga No.50, Braga, Kec. Sumur Bandung, Kota Bandung, Jawa Barat 40111</div>
+            </div>
+        </div>
+
+        <div class="reservasiDetails">
+            <h2>Reservasi Anda Hari Ini</h2>
+            <div class="reservasiDetailsWrapper">
+                <div class="desc">
+                    <div class="descLine">Nomor Meja: B1</div>
+                    <div class="descLine">Jumlah Orang: 2</div>
+                    <div class="descLine"><i>Contact Person:</i> 08123456789</div>
+                </div>
+                <div class="batal">
+                    <button>Batalkan Reservasi</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="buatReservasi">
+            <h2>Buat Reservasi</h2>
+            <p class="subtitle">Pilih meja yang tersedia untuk reservasi Anda</p>
+            
+            <div class="reservasiWrapper">
+                <div class="denah">
+                    <div class="card">
+                        <h3>Denah Restoran</h3>
+                        <img src="../assets/denah.png" alt="Denah Restoran">
+                    </div>
+                </div>
+                
+                <form action="form_reservasi.html" method="GET" class="card">
+                    <h3>Pilih Nomor Meja</h3>
+
+                    <div class="seatsList">
+                        <label class="seatOption">
+                            <input type="radio" name="meja" value="A1">
+                            <span class="seat">A1</span>
+                        </label>
+
+                        <label class="seatOption">
+                            <input type="radio" name="meja" value="A2">
+                            <span class="seat">A2</span>
+                        </label>
+
+                        <label class="seatOption unavailable">
+                            <input type="radio" name="meja" value="B1" disabled>
+                            <span class="seat">B1</span>
+                        </label>
+
+                        <label class="seatOption">
+                            <input type="radio" name="meja" value="B2">
+                            <span class="seat">B2</span>
+                        </label>
+
+                        <label class="seatOption">
+                            <input type="radio" name="meja" value="B3">
+                            <span class="seat">B3</span>
+                        </label>
+
+                        <label class="seatOption">
+                            <input type="radio" name="meja" value="B4">
+                            <span class="seat">B4</span>
+                        </label>
+
+                        <label class="seatOption">
+                            <input type="radio" name="meja" value="C1">
+                            <span class="seat">C1</span>
+                        </label>
+
+                        <label class="seatOption unavailable">
+                            <input type="radio" name="meja" value="C2" disabled>
+                            <span class="seat">C2</span>
+                        </label>
+
+                    </div>
+                    <button type="submit" class="confirm-btn">Konfirmasi Reservasi</button>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

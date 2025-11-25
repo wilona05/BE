@@ -4,18 +4,45 @@ header{
   top: 0px;
   left: 0px;
   right: 0px;
-  padding: 10px 20px;
+  padding: 0px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #C43E4A;
   color: #fff;
   z-index: 10;
+  height: 80px;
 }
 
-.logout_btn{
-    float: right;
-    size: 70px;
+.leftHeader {
+    display: flex;
+    align-items: center;   
+    height: 100%;          
+}
+
+.logo {
+    height: auto;
+    max-height: 60px;      
+    width: auto;           
+    object-fit: contain;
+}
+
+.rightHeader a {
+    text-decoration: none;
+}
+
+.logout_btn {
+    padding: 12px 32px;
+    background: #ffffff;
+    color: #C43E4A;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.logout_btn:hover {
+    background-color: #f0f0f0;
 }
 
 /* Button styling */
