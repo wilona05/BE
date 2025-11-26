@@ -20,40 +20,42 @@
     </header>
 
     <main>
-        <section class="reservationFormContainer">
-            <h2>Form Reservasi Meja</h2>
+        <body>
+            <div class="card">
         
-            <form action="#" method="GET" class="reservationForm">
+                <h2>Form Reservasi</h2>
         
-                <div class="formGroup">
-                    <label for="nomorMeja">Nomor Meja</label>
-                    <input type="text" id="nomorMeja" name="meja" readonly>
-                </div>
+                <!-- Meja yang dipilih -->
+                <div id="chosenTable" class="chosen-table"></div>
         
-                <div class="formGroup">
-                    <label for="namaPemesan">Nama Pemesan</label>
-                    <input type="text" id="namaPemesan" name="nama" required>
-                </div>
+                <form id="reservationForm" action="homepage_user.html" method="POST">
         
-                <div class="formGroup">
-                    <label for="jumlahOrang">Jumlah Orang</label>
-                    <input type="number" id="jumlahOrang" name="jumlah_orang" min="1" required>
-                    <small id="kapasitasText" style="color:#555;"></small>
-                </div>
+                    <!-- Nama -->
+                    <label for="namaInput">Nama Lengkap</label>
+                    <input type="text" id="namaInput" placeholder="Masukkan nama" required />
         
-                <div class="formGroup">
-                    <label for="kontak">Nomor Kontak (WhatsApp)</label>
-                    <input type="tel" id="kontak" name="kontak" pattern="[0-9]+" placeholder="08xxxxxxxxxx" required>
-                </div>
+                    <!-- Nomor Telepon -->
+                    <label for="telpInput">Nomor Telepon</label>
+                    <input type="tel" id="telpInput" placeholder="08xxxx" required />
         
-                <div class="formSubmit">
-                    <button type="submit" class="submit_btn">
-                        Konfirmasi Reservasi
-                    </button>
-                </div>
+                    <!-- Jumlah Orang -->
+                    <label for="paxInput">Jumlah Orang</label>
+                    <input type="number" id="paxInput" min="1" placeholder="Masukkan jumlah orang" required />
         
-            </form>
-        </section>
+                    <!-- Tanggal -->
+                    <label for="tanggalInput">Tanggal Reservasi</label>
+                    <input type="date" id="tanggalInput" required>
+        
+                    <!-- Waktu -->
+                    <label for="waktuInput">Waktu Reservasi</label>
+                    <input type="time" id="waktuInput" required>
+        
+                    <button type="submit">Kirim Reservasi</button>
+                </form>
+        
+            </div>
     </main>
+
+    <script src="../script/form_reservasi.js"></script>
 </body>
 </html>
