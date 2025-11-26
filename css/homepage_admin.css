@@ -42,9 +42,14 @@ table{
 }
 
 th {
+    padding: 10px;
     background-color: black;
     color: white;
     font-weight: bold; /* Teks tebal untuk header */
+}
+
+td {
+    padding: 10px;
 }
 
 tr:nth-child(even){

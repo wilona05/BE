@@ -96,11 +96,13 @@
 
 .reservasiWrapper {
     display: flex;
+    width: 100%;
     gap: 40px;
     justify-content: space-between;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: flex-start;    
 }
+
 /* Card */
 .card {
     display: flexbox;
@@ -109,6 +111,7 @@
 }
 
 .card h3 {
+    min-width: auto;
     font-size: 24px;
     font-weight: 600;
     color: #2c3e50;
@@ -120,6 +123,11 @@
 /* Denah */
 .denah {
     flex: 1;
+    max-width: 50%;
+}
+
+#fotoDenah{
+    max-width: 60vw;
 }
 .denahImgWrapper img{
     width: 100%;
