@@ -32,13 +32,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // set batas tanggal 7 hari
     
-    const tanggalInput = document.getElementById("tanggalInput");
+    // const tanggalInput = document.getElementById("tanggalInput");
 
-    const today = new Date();
-    const maxDate = new Date();
-    maxDate.setDate(today.getDate() + 7);
+    // const today = new Date();
+    // const maxDate = new Date();
+    // maxDate.setDate(today.getDate() + 7);
 
-    tanggalInput.min = today.toISOString().split("T")[0];
-    tanggalInput.max = maxDate.toISOString().split("T")[0];
+    // tanggalInput.min = today.toISOString().split("T")[0];
+    // tanggalInput.max = maxDate.toISOString().split("T")[0];
 
 });
