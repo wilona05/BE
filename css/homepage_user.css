@@ -123,11 +123,6 @@
 /* Denah */
 .denah {
     flex: 1;
-    max-width: 50%;
-}
-
-#fotoDenah{
-    max-width: 60vw;
 }
 .denahImgWrapper img{
     width: 100%;
