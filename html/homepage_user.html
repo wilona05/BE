@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="../css/style.css">
     <link rel="stylesheet" type="text/css" href="../css/homepage_user.css">
+    <script src="../js/homepage_user.js" type="text/javascript" defer></script>
     <title>Kulineria - Restaurant Reservation</title>
 </head>
 <body>
@@ -42,6 +43,18 @@
             </div>
         </div>
         
+        <div class="popUpBatal">
+            <div class="popUpContent">
+                <h3>Batalkan Reservasi?</h3>
+                <p>Apakah Anda yakin ingin membatalkan reservasi?</p>
+
+                <div class="popUpButtons">
+                    <button class="buttonTidak">Tidak</button>
+                    <button class="buttonYa">Ya, Batalkan</button>
+                </div>
+            </div>
+        </div>
+
         <div class="buatReservasi">
             <h2>Buat Reservasi</h2>
             <p class="subtitle">Pilih meja yang tersedia untuk reservasi Anda</p>
@@ -50,7 +63,9 @@
                 <div class="denah">
                     <div class="card">
                         <h3>Denah Restoran</h3>
-                        <img src="../assets/denah.png" alt="Denah Restoran">
+                        <div class="denahImgWrapper">
+                            <img src="../assets/denah.png" alt="Denah Restoran">
+                        </div>
                     </div>
                 </div>
                 
@@ -107,4 +122,5 @@
     </main>
 
 </body>
+
 </html>

@@ -103,6 +103,7 @@
 }
 /* Card */
 .card {
+    display: flexbox;
     border-radius: 15px;
     padding-right: 60px;
 }
@@ -120,7 +121,9 @@
 .denah {
     flex: 1;
 }
-
+.denahImgWrapper img{
+    width: 100%;
+}
 /* Pilihan Meja */
 .seatsList {
     display: grid;
@@ -191,10 +194,72 @@
 }
 
 .confirm-btn:hover {
-    background-color: #a83640;
+    background-color: #A83640;
 }
 
 .confirm-btn:disabled {
     background: #cccccc;
     cursor: not-allowed;
+}
+
+/* Pop Up Konfirmasi Batal Reservasi*/
+.popUpBatal {
+    display: none;
+    position: fixed;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(2px);
+    justify-content: center;
+    align-items: center;
+    inset: 0;
+    z-index: 1000;
+}
+
+.popUpContent {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.popUpContent h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.popUpContent p {
+    color: #444;
+    margin-bottom: 20px;
+}
+
+.popUpButtons {
+    display: flex;
+    gap: 15px;
+}
+
+.popUpButtons button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.buttonYa {
+    background-color: #C43E4A;
+    color: white;
+}
+
+.buttonYa:hover {
+    background-color: #A83640;
+}
+
+.buttonTidak {
+    background-color: #ddd;
+}
+
+.buttonTidak:hover {
+    background-color: #c6c6c6;
 }
