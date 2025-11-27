@@ -41,4 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // tanggalInput.min = today.toISOString().split("T")[0];
     // tanggalInput.max = maxDate.toISOString().split("T")[0];
 
+    const telpInput = document.getElementById("telpInput");
+    telpInput.addEventListener('input', function(event) {
+        event.target.value = event.target.value.replace(/[^0-9]/g, '');
+    });
 });
