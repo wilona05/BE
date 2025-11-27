@@ -28,7 +28,7 @@ form {
 }
 
 label {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 500;
     margin-top: 12px;
     display: block;
@@ -38,7 +38,7 @@ label {
     text-align: center;
     font-weight: 600;
     margin-bottom: 20px;
-    font-size: 17px;
+    font-size: 18px;
     color: #333;
 }
 
@@ -52,7 +52,7 @@ select {
     border: 1.5px solid #d6d9e0;
     border-radius: 10px;
     background: #fafbff;
-    font-size: 14px;
+    font-size: 18px;
     box-sizing: border-box;
 }
 
@@ -101,4 +101,8 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: #a83640;
+}
+
+.denahImgWrapper img{
+    width: 100%;
 }

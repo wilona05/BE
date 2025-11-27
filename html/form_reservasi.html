@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="../css/form_reservasi.css">
     <link rel="stylesheet" type="text/css" href="../css/style.css">
-    <title>Kulineria | Reservation </title>
+    <title>Kulineria | Restaurant Reservation </title>
 </head>
 <body>
     <header>
@@ -22,7 +22,9 @@
     <main>
         <body>
             <div class="card">
-        
+                <div class="denahImgWrapper">
+                    <img src="../assets/denah.png" alt="Denah Restoran">
+                </div>
                 <h2>Form Reservasi</h2>
         
                 <!-- Meja yang dipilih -->
@@ -36,7 +38,7 @@
         
                     <!-- Nomor Telepon -->
                     <label for="telpInput">Nomor Telepon</label>
-                    <input type="tel" id="telpInput" placeholder="08xxxx" required />
+                    <input type="tel" id="telpInput" placeholder="08xxxx" pattern="[0-9]*" inputmode="numeric" required />
         
                     <!-- Jumlah Orang -->
                     <label for="paxInput">Jumlah Orang</label>
