@@ -1,0 +1,21 @@
+{
+  "name": "be",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/wilona05/BE#readme",
+  "bugs": {
+    "url": "https://github.com/wilona05/BE/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wilona05/BE.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  }
+}
