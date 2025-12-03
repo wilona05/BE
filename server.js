@@ -11,22 +11,27 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // untuk membaca cookie
-function parseCookies(req) {
-    const list = {};
-    const cookieHeader = req.headers.cookie; // ambil cookie yang disimpan di header
+function parseCookies(cookieHeader) {
+    const cookies = {};
 
-    if (!cookieHeader) return list;
+    if (!cookieHeader) return cookies;
 
-    // cookie di-formatting
+    if (Array.isArray(cookieHeader)) { // jika cookie > 1, maka kembalian array
+        cookieHeader = cookieHeader.join("; "); // dibuat jadi string dulu
+    }
+
+    if (typeof cookieHeader !== "string") return cookies;
+
+    // cookie diformat agar berbentuk string
     cookieHeader.split(";").forEach(cookie => {
-        let [name, ...rest] = cookie.split("="); // split cookie sesuai tanda
-        name = name?.trim();
-        const value = rest.join("=").trim(); // formatting cookie
-        if (!name) return;
-        list[name] = decodeURIComponent(value);
+        const index = cookie.indexOf("=");
+        if (index === -1) return;
+        const key = cookie.substring(0, index).trim();
+        const value = cookie.substring(index + 1).trim();
+        cookies[key] = decodeURIComponent(value);
     });
 
-    return list;
+    return cookies;
 }
 
 // untuk mengecek role
@@ -51,7 +56,7 @@ server.on("request", (request, response) => {
     const method = request.method;
     const urlPath = request.url;
     // ambil cookie
-    const cookies = parseCookies(request);
+    const cookies = parseCookies(request.headers.cookie);
 
     // untuk mengambil assets
     const publicDir = ["css", "script", "assets", "html"];
@@ -135,7 +140,10 @@ server.on("request", (request, response) => {
     // untuk logout
     if(method === "GET" && urlPath === "/logout"){
         response.writeHead(302, {
-            "Set-Cookie": "role=; Max-Age=0; Path=/", // role dihapus dari cookie
+            "Set-Cookie": [
+                `id_user=; HttpOnly; Path=/`,
+                `role=; HttpOnly; Path=/`
+            ],
             "Location": "/login" // lempar ke halaman login
         });
         return response.end();
