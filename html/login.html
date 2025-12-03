@@ -15,7 +15,7 @@
             <p th:text="${error}"></p>
         </div>
         
-        <form action="/login" class="login_form" method="post">
+        <form action="/login" class="login_form" method="POST">
             <div class="login_container">
                 <div class="logo-container">
                     <img src="../assets/kulineria-png.png" alt="Kulineria Logo" class="logo">
@@ -24,7 +24,7 @@
                 <input type="text" id="email" name="email" required><br>
                 <label for="password"><b>Kata Sandi</b></label>
                 <input type="password" id="password" name="password" required><br>
-                <a href="/homepage_user" class="btn-login">Masuk</a>
+                <button type="submit" class="btn-login">Masuk</button>
             </div>
         </form>
         <div id="grad"></div>
