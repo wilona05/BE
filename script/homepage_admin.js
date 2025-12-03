@@ -6,7 +6,22 @@ document.getElementById("historiReservasi").addEventListener("change", function(
     let cell = document.getElementById(cellId) //cell target
 
     //jika nilai dropdown bukan Aktif, ganti isi cell menjadi nilai tersebut (teks)
-    if (value != "Aktif"){ 
-        cell.innerHTML = `${value}`
-    }
+    // if (value != "aktif"){ 
+    //     cell.innerHTML = `${value}`
+    // }
+
+    //kirim update status ke server
+    fetch("/update_status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: cellId, status: value })
+    })
+    //terima response dari server
+    .then(res => res.json())
+    .then(result => {
+        if(result.success){
+            cell.innerHTML = `${value}`
+            location.reload()
+        }
+    })
 })
