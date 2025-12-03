@@ -41,18 +41,21 @@ export async function loginUser(req, res){
         return res.end("Email atau password salah");
     }
 
-    // siapkan cookie untuk dipasang di header
-    const cookie = `role=${user.role}; HttpOnly; Path=/`
-
     // jika user ditemukan dan dibedakan berdasarkan rolenya
     if(user.role === 'admin'){
         res.writeHead(302, {
-            "Set-Cookie": cookie,
+            "Set-Cookie": [
+                `id_user=${user.id_user}; HttpOnly; Path=/`,
+                `role=${user.role}; HttpOnly; Path=/`
+            ],
             "Location": "/homepage_admin"
         })
     }else{
         res.writeHead(302, {
-            "Set-Cookie": cookie,
+            "Set-Cookie": [
+                `id_user=${user.id_user}; HttpOnly; Path=/`,
+                `role=${user.role}; HttpOnly; Path=/`
+            ],
             "Location": "/homepage_user"
         })
     }
