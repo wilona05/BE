@@ -163,6 +163,10 @@ server.on("request", (request, response) => {
             }
         })
     }
+
+    if (method === "POST" && urlPath === "/form") {
+        
+    }
 });
 
 server.listen(8080);
