@@ -30,7 +30,7 @@
                 <!-- Meja yang dipilih -->
                 <div id="chosenTable" class="chosen-table"></div>
         
-                <form id="reservationForm" action="homepage_user.html" method="POST">
+                <form id="reservationForm" action="/reservation" method="POST">
         
                     <!-- Nama -->
                     <label for="namaInput">Nama Lengkap</label>
@@ -43,14 +43,9 @@
                     <!-- Jumlah Orang -->
                     <label for="paxInput">Jumlah Orang</label>
                     <input type="number" id="paxInput" name="paxInput" min="1" placeholder="Masukkan jumlah orang" required />
-        
-                    <!-- Tanggal -->
-                    <!-- <label for="tanggalInput">Tanggal Reservasi</label>
-                    <input type="date" id="tanggalInput" required> -->
-        
-                    <!-- Waktu -->
-                    <!-- <label for="waktuInput">Waktu Reservasi</label>
-                    <input type="time" id="waktuInput" required> -->
+
+                    <input type="hidden" id="idMeja" name="idMeja" />
+
         
                     <button type="submit">Kirim Reservasi</button>
                 </form>

@@ -30,19 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Meja:", meja, "kapasitas:", maxCap);
     }
 
-    // set batas tanggal 7 hari
-    
-    // const tanggalInput = document.getElementById("tanggalInput");
-
-    // const today = new Date();
-    // const maxDate = new Date();
-    // maxDate.setDate(today.getDate() + 7);
-
-    // tanggalInput.min = today.toISOString().split("T")[0];
-    // tanggalInput.max = maxDate.toISOString().split("T")[0];
 
     const telpInput = document.getElementById("telpInput");
     telpInput.addEventListener('input', function(event) {
         event.target.value = event.target.value.replace(/[^0-9]/g, '');
     });
+
+
+    document.getElementById("chosenTable").innerText = `Meja yang dipilih: ${meja}`;
+    document.getElementById("idMeja").value = meja;
+
 });

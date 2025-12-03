@@ -11,55 +11,63 @@ const dbPromise = open({
     driver: sqlite3.Database
 });
 
-export async function createReservation(req, res) {
-    const body = await parseBody(req);
-    const { namaInput, telpInput, paxInput } = body;
-
-    const db = await dbPromise;
-
-    const user = await db.get(
-        "SELECT * FROM users WHERE email = ? AND password = ?",
-            [email, password]
-    );
+function parseBody(req) {
+    return new Promise((resolve) => {
+        let body = "";
+        req.on("data", chunk => body += chunk.toString());
+        req.on("end", () => {
+            const data = new URLSearchParams(body);
+            resolve(Object.fromEntries(data));
+        });
+    });
 }
 
-
-export async function loginUser(req, res){
+export async function createReservation(req, res) {
     const body = await parseBody(req);
-    const { email, password } = body;
+    const { namaInput, telpInput, paxInput, idMeja } = body;
 
     const db = await dbPromise;
-    // ambil dari database
-    const user = await db.get(
-        "SELECT * FROM users WHERE email = ? AND password = ?",
-            [email, password]
+
+    // Ambil cookie untuk id_user
+    const cookieHeader = req.headers.cookie || "";
+    const cookies = Object.fromEntries(
+        cookieHeader.split("; ").map(c => c.split("="))
     );
 
-    // jika user tidak ditemukan
-    if(!user){
-        res.writeHead(401, {
-            "Content-Type": 'text/plain'                
-        });
-        return res.end("Email atau password salah");
+    const id_user = cookies.id_user;
+
+    if (!id_user) {
+        res.writeHead(401, { "Content-Type": "text/plain" });
+        return res.end("Anda harus login terlebih dahulu");
     }
 
-    // jika user ditemukan dan dibedakan berdasarkan rolenya
-    if(user.role === 'admin'){
+    // Membuat tanggal
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+
+    // Insert ke tabel reservasi
+    try {
+        await db.run(
+            `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                id_user,
+                date,     // format yyyy-mm-dd
+                idMeja,        // id meja
+                paxInput,      // jumlah org
+                telpInput,     // kontak
+                "pending"      // status default
+            ]
+        );
+
         res.writeHead(302, {
-            "Set-Cookie": [
-                `id_user=${user.id_user}; HttpOnly; Path=/`,
-                `role=${user.role}; HttpOnly; Path=/`
-            ],
-            "Location": "/homepage_admin"
-        })
-    }else{
-        res.writeHead(302, {
-            "Set-Cookie": [
-                `id_user=${user.id_user}; HttpOnly; Path=/`,
-                `role=${user.role}; HttpOnly; Path=/`
-            ],
-            "Location": "/homepage_user"
-        })
+            "Location": "/reservation"
+        });
+        return res.end();
+
+    } catch (err) {
+        console.error(err);
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        return res.end("Terjadi kesalahan saat membuat reservasi");
     }
-    res.end();
 }
