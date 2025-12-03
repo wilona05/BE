@@ -13,8 +13,14 @@ const dbPromise = open({
 
 export async function createReservation(req, res) {
     const body = await parseBody(req);
-    const {fullName, pho}
+    const { namaInput, telpInput, paxInput } = body;
 
+    const db = await dbPromise;
+
+    const user = await db.get(
+        "SELECT * FROM users WHERE email = ? AND password = ?",
+            [email, password]
+    );
 }
 
 
