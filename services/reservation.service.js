@@ -77,11 +77,18 @@ export async function createReservation(req, res) {
 
         const id_meja = mejaData.id_meja; // angka dari database
 
+        
+
         // insert reservasi
         await db.run(
             `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
              VALUES (?, ?, ?, ?, ?, ?)`,
             [id_user, date, id_meja, paxInput, telpInput, "aktif"]
+        );
+
+        await db.run(
+            `UPDATE meja SET available = 0 WHERE id_meja = ?`,
+            [id_meja]
         );
 
         res.writeHead(302, { Location: "/homepage_user" });
@@ -172,7 +179,7 @@ export async function batalkanReservasi(req, res, id_user) {
 
 export async function getAllReservations(){
     const db = await dbPromise;
-    return db.all("SELECT * FROM reservasi r INNER JOIN users u ON r.id_user = u.id_user;")
+    return db.all("SELECT * FROM users u INNER JOIN reservasi r ON u.id_user = r.id_user INNER JOIN meja m on r.id_meja = m.id_meja;")
 };
 
 export async function getTotalReservasi(){
