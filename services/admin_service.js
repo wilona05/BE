@@ -1,4 +1,4 @@
-import { getAllReservations, getReservasiAktif, getReservasiSelesai, getReservasiDibatalkan, getJmlhPemesan, getTotalReservasi, editStatus} from "../services/reservation.service.js";
+import { getAllReservations, getReservasiAktif, getReservasiSelesai, getReservasiDibatalkan, getJmlhPemesan, getTotalReservasi, editStatus } from "../services/reservation.service.js";
 import fs from "fs/promises";
 
 export async function renderAdminPage(){
