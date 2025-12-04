@@ -12,6 +12,99 @@ const dbPromise = open({
     driver: sqlite3.Database
 });
 
+// untuk mengubah body dari request POST (yang bentuknya stream) menjadi JSON
+// mengembalikan Promise berisi JSON hasil parsing
+function parseBodyJSON(request) {
+    return new Promise((resolve, reject) => {
+
+        let body = "";
+        request.on("data", chunk => {
+            body += chunk.toString(); // kumpulkan semua chunk sebagai string
+        });
+        request.on("end", () => {
+            try {
+                resolve(JSON.parse(body));
+            } catch (err) {
+                reject(err);
+            }
+        });
+    });
+}
+
+
+export async function getUserActiveReservation(id_user) {
+    const db = await dbPromise;
+
+    const sql = `
+        SELECT r.id_reservasi, m.no_meja, r.jmlh_org, r.kontak 
+        FROM reservasi r
+        JOIN meja m ON r.id_meja = m.id_meja
+        WHERE r.id_user = ? 
+          AND r.status = 'aktif'
+        LIMIT 1
+    `;
+
+    return db.get(sql, [id_user]); 
+}
+
+export async function getAllMeja() {
+    const db = await dbPromise;
+
+    const query = `
+        SELECT id_meja, no_meja, available
+        FROM meja
+        ORDER BY no_meja
+    `;
+
+    return db.all(query);
+}
+
+export async function batalkanReservasi(req, res, id_user) {
+    const body = await parseBodyJSON(req);
+    const { id_reservasi} = body;
+
+    const db = await dbPromise;
+
+    try {
+         // Ambil id_meja dari reservasi yang dibatalkan
+        const reservasi = await db.get(
+            `SELECT id_meja 
+            FROM reservasi 
+            WHERE id_reservasi = ? AND id_user = ?`,
+            [id_reservasi, id_user]
+        );
+
+        // Kalau database tidak mengembalikan apapun
+        if (!reservasi) {
+            throw new Error("Reservasi tidak ditemukan atau bukan milik user");
+        }
+
+        const id_meja = reservasi.id_meja;
+
+        // Update status reservasi menjadi 'batal'
+        await db.run(
+            `UPDATE reservasi 
+            SET status = 'batal' 
+            WHERE id_reservasi = ? 
+            AND id_user = ?`,
+            [id_reservasi, id_user]
+        );
+        
+        // Update meja menjadi available=1
+        await db.run(
+            `UPDATE meja SET available = 1 WHERE id_meja = ?`,
+            [id_meja]
+        );
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ success: true }));
+
+    } catch (error) {
+        console.error(error);
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        return res.end("Terjadi kesalahan saat membatalkan reservasi");
+    }
+}
 export async function getAllReservations(){
     const db = await dbPromise;
     return db.all("SELECT * FROM reservasi r INNER JOIN users u ON r.id_user = u.id_user;")

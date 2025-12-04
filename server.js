@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loginUser } from './services/auth.service.js';
+import { getUserActiveReservation, getAllMeja, batalkanReservasi } from "./services/reservation.service.js";
 import { renderAdminPage } from "./services/admin_service.js";
 import { handleEditStatus } from "./services/admin_service.js";
 
@@ -169,6 +170,49 @@ server.on("request", async(request, response) => {
                 response.end(data);
             }
         })
+    }
+
+    // untuk menampilkan card reservasi yang aktif di halaman user
+    if (method === "GET" && urlPath === "/reservasi-user") {
+        const cookies = parseCookies(request.headers.cookie);
+
+
+        if (!cookies.id_user) {
+            response.writeHead(401, { "Content-Type": "text/plain" });
+            return response.end("No user ID in cookie");
+        }
+
+        const data = await getUserActiveReservation(cookies.id_user);
+
+        response.writeHead(200, { "Content-Type": "application/json" });
+        return response.end(JSON.stringify(data || {}));
+    }
+
+    // untuk menampilkan button2 meja yang available & unavailable
+    if (method === "GET" && urlPath === "/meja-list") {
+        const cookies = parseCookies(request.headers.cookie);
+
+        if (!cookies.id_user) {
+            response.writeHead(401, { "Content-Type": "text/plain" });
+            return response.end("No user ID in cookie");
+        }
+
+        const meja = await getAllMeja();
+
+        response.writeHead(200, { "Content-Type": "application/json" });
+        return response.end(JSON.stringify(meja));
+    }
+
+    // untuk membatalkan reservasi user
+    if (method === "POST" && urlPath === "/batal-reservasi") {
+        const cookies = parseCookies(request.headers.cookie);
+
+        if (!cookies.id_user) {
+            response.writeHead(401, { "Content-Type": "text/plain" });
+            return response.end("No user ID in cookie");
+        }
+
+        return batalkanReservasi(request, response, cookies.id_user);
     }
 });
 

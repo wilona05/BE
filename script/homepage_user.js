@@ -10,13 +10,77 @@ document.querySelector(".buttonTidak").addEventListener("click", function() {
 });
 
 // Batalkan reservasi
-document.querySelector(".buttonYa").addEventListener("click", function() {
-    // Ganti status reservasi jadi "Batal", 
-    // secara otomatis elemen "Detail reservasi" akan terhapus 
-    // karena hanya yang aktif yang ditampilkan
+document.querySelector(".buttonYa").addEventListener("click", async function() {
+    // Jika sekarang tidak ada reservasi, tidak melakukan apa-apa
+    if (!currentReservationId) return;
 
-    //untuk sementara, pakai display="none" dulu
-    document.querySelector(".reservasiDetails").style.display = "none";
+    // Membatalkan reservasi dengan id reservasi ini
+    await fetch("/batal-reservasi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_reservasi: currentReservationId })
+    });
+
     //Tutup pop up
     document.querySelector(".popUpBatal").style.display = "none";
+
+    //Reload halaman untuk menampilkan data yang baru
+    location.reload();
+});
+
+//Load reservasi dari server
+async function loadReservation() {
+    try {
+        const res = await fetch("/reservasi-user");
+        
+        const data = await res.json();
+
+        // Kalau tidak ada reservasi aktif, hide card ini
+        if (!data || !data.no_meja) {
+            document.querySelector(".reservasiDetails").style.display = "none";
+            return;
+        }
+
+        // simpan id reservasi untuk fungsi pembatalan
+        currentReservationId = data.id_reservasi;
+
+        // Kalau ada reservasi, tampilkan datanya
+        document.querySelector(".reservasiDetails .desc").innerHTML = `
+            <div class="descLine">Nomor Meja: ${data.no_meja}</div>
+            <div class="descLine">Jumlah Orang: ${data.jmlh_org}</div>
+            <div class="descLine">Nomor Kontak: ${data.kontak}</div>
+        `;
+    } catch (err) {
+        console.error("Gagal load data reservasi:", err);
+    }
+}
+
+async function loadMeja() {
+    try {
+        const res = await fetch("/meja-list");
+        const list = await res.json();
+
+        const container = document.querySelector(".seatsList");
+        container.innerHTML = "";
+
+        list.forEach(m => {
+            const disabled = m.available === 0 ? "disabled" : "";
+            const unavailable = m.available === 0 ? "unavailable" : "";
+
+            container.innerHTML += `
+                <label class="seatOption ${unavailable}">
+                    <input type="radio" name="meja" value="${m.no_meja}" ${disabled}>
+                    <span class="seat">${m.no_meja}</span>
+                </label>
+            `;
+        });
+    } catch (err) {
+        console.error("Gagal load data meja:", err);
+    }
+}
+
+
+window.addEventListener("DOMContentLoaded", () => {
+    loadReservation();  //load kartu reservasi
+    loadMeja();         //load meja2 available & unavailable
 });
