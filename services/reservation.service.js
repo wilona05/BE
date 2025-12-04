@@ -42,46 +42,49 @@ function parseBodyJSON(request) {
 }
 
 export async function createReservation(req, res) {
-    const body = await parseBody(req);
-    const { namaInput, telpInput, paxInput, idMeja } = body;
-
-    const db = await dbPromise;
-
-    // Ambil cookie untuk id_user
-    const cookieHeader = req.headers.cookie || "";
-    const cookies = Object.fromEntries(
-        cookieHeader.split("; ").map(c => c.split("="))
-    );
-
-    const id_user = cookies.id_user;
-
-    if (!id_user) {
-        res.writeHead(401, { "Content-Type": "text/plain" });
-        return res.end("Anda harus login terlebih dahulu.");
-    }
-
-    // Membuat tanggal
-    const now = new Date();
-    const date = now.toISOString().slice(0, 10);
-
-    // Insert ke tabel reservasi
     try {
+        const body = await parseBody(req);
+        const { namaInput, telpInput, paxInput, idMeja } = body;
+
+        const db = await dbPromise;
+
+        // Ambil cookie untuk id_user
+        const cookieHeader = req.headers.cookie || "";
+        const cookies = Object.fromEntries(
+            cookieHeader.split("; ").map(c => c.split("="))
+        );
+
+        const id_user = cookies.id_user;
+
+        if (!id_user) {
+            res.writeHead(401, { "Content-Type": "text/plain" });
+            return res.end("Anda harus login terlebih dahulu.");
+        }
+
+        // Membuat tanggal
+        const date = new Date().toISOString().slice(0, 10);
+
+        // Ambil id_meja berdasarkan no_meja (A1/B2/C3)
+        const mejaData = await db.get(
+            `SELECT id_meja FROM meja WHERE no_meja = ?`,
+            [idMeja]
+        );
+
+        if (!mejaData) {
+            res.writeHead(400, { "Content-Type": "text/plain" });
+            return res.end("Meja tidak ditemukan");
+        }
+
+        const id_meja = mejaData.id_meja; // angka dari database
+
+        // insert reservasi
         await db.run(
             `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [
-                id_user,
-                date,     // format yyyy-mm-dd
-                idMeja,        // id meja
-                paxInput,      // jumlah org
-                telpInput,     // kontak
-                "aktif"      // status default
-            ]
+            [id_user, date, id_meja, paxInput, telpInput, "aktif"]
         );
 
-        res.writeHead(302, {
-            "Location": "/homepage_user"
-        });
+        res.writeHead(302, { Location: "/homepage_user" });
         return res.end();
 
     } catch (err) {
@@ -90,6 +93,8 @@ export async function createReservation(req, res) {
         return res.end("Terjadi kesalahan saat membuat reservasi");
     }
 }
+
+
 
 export async function getUserActiveReservation(id_user) {
     const db = await dbPromise;
