@@ -3,6 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { URL } from "node:url";
 import { fileURLToPath } from "node:url";
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
+
+
+// services
 import { loginUser } from './services/auth.service.js';
 import { getUserActiveReservation, getAllMeja, batalkanReservasi } from "./services/reservation.service.js";
 import { renderAdminPage } from "./services/admin_service.js";
@@ -56,6 +61,36 @@ function authorizeRole(res, cookies, role){
 
     return true;
 }
+
+function parseBody(request) {
+    return new Promise((resolve, reject) => {
+        let body = "";
+
+        request.on("data", chunk => {
+            body += chunk.toString();
+        });
+
+        request.on("end", () => {
+            try {
+                const parsed = new URLSearchParams(body);
+                const result = {};
+                for (const [key, value] of parsed.entries()) {
+                    result[key] = value;
+                }
+                resolve(result);
+            } catch (err) {
+                reject(err);
+            }
+        });
+
+        request.on("error", reject);
+    });
+}
+
+const dbPromise = open({
+    filename: path.join(__dirname, "mydb.sqlite"),
+    driver: sqlite3.Database
+});
 
 server.on("request", async(request, response) => {
     const method = request.method;
@@ -160,25 +195,62 @@ server.on("request", async(request, response) => {
     }
     
     // untuk menampilkan form
-    if (method === "GET" && urlPath.startsWith("/reservation")) {
-        if(!authorizeRole(response, cookies, "user")) return;
+if (method === "GET" && urlPath.startsWith("/reservation")) {
+    if (!authorizeRole(response, cookies, "user")) return;
 
-        const requestUrl = new URL(request.url, `http://${request.headers.host}`);
-        const mejaDipilih = requestUrl.searchParams.get("meja");
-
-        console.log("Meja yang dikirim:", mejaDipilih);
-
-        const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
-        fs.readFile(filePath, (err, data) => {
-            response.writeHead(200, { "Content-Type": "text/html" });
-            response.end(data);
-        });
+    if (!cookies.id_user) {
+        response.writeHead(302, { Location: "/login" });
+        return response.end();
     }
 
+    const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
+    const data = fs.readFileSync(filePath);
+    response.writeHead(200, { "Content-Type": "text/html" });
+    return response.end(data);
+}
 
-    if (method === "POST" && urlPath === "/reservation") {
-        return createReservation(request, response);
+
+if (method === "POST" && urlPath === "/reservation") {
+    const body = await parseBody(request);
+    const { namaInput, telpInput, paxInput, idMeja } = body;
+
+    // gunakan cookies dari atas
+    if (!cookies.id_user) {
+        response.writeHead(401, { "Content-Type": "text/plain" });
+        return response.end("Harus login");
     }
+
+    const db = await dbPromise;
+
+    // Cari id_meja berdasarkan no_meja
+    const mejaData = await db.get(
+        "SELECT id_meja FROM meja WHERE no_meja = ?",
+        [idMeja]
+    );
+
+    if (!mejaData) {
+        response.writeHead(400, { "Content-Type": "text/plain" });
+        return response.end("Meja tidak ditemukan");
+    }
+
+    // Insert ke tabel reservasi pakai id_meja dari DB
+    await db.run(
+        `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+            cookies.id_user,
+            new Date().toISOString().slice(0, 10),
+            mejaData.id_meja,
+            paxInput,
+            telpInput,
+            "aktif"
+        ]
+    );
+
+    response.writeHead(302, { Location: "/homepage_user" });
+    return response.end();
+}
+
 
     // untuk menampilkan card reservasi yang aktif di halaman user
     if (method === "GET" && urlPath === "/reservasi-user") {
