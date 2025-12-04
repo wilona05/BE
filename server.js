@@ -195,61 +195,24 @@ server.on("request", async(request, response) => {
     }
     
     // untuk menampilkan form
-if (method === "GET" && urlPath.startsWith("/reservation")) {
-    if (!authorizeRole(response, cookies, "user")) return;
+    if (method === "GET" && urlPath.startsWith("/reservation")) {
+        if (!authorizeRole(response, cookies, "user")) return;
 
-    if (!cookies.id_user) {
-        response.writeHead(302, { Location: "/login" });
-        return response.end();
+        if (!cookies.id_user) {
+            response.writeHead(302, { Location: "/login" });
+            return response.end();
+        }
+
+        const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
+        const data = fs.readFileSync(filePath);
+        response.writeHead(200, { "Content-Type": "text/html" });
+        return response.end(data);
     }
 
-    const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
-    const data = fs.readFileSync(filePath);
-    response.writeHead(200, { "Content-Type": "text/html" });
-    return response.end(data);
-}
 
-
-if (method === "POST" && urlPath === "/reservation") {
-    const body = await parseBody(request);
-    const { namaInput, telpInput, paxInput, idMeja } = body;
-
-    // gunakan cookies dari atas
-    if (!cookies.id_user) {
-        response.writeHead(401, { "Content-Type": "text/plain" });
-        return response.end("Harus login");
+    if (method === "POST" && urlPath === "/reservation") {
+        return createReservation(request, response);
     }
-
-    const db = await dbPromise;
-
-    // Cari id_meja berdasarkan no_meja
-    const mejaData = await db.get(
-        "SELECT id_meja FROM meja WHERE no_meja = ?",
-        [idMeja]
-    );
-
-    if (!mejaData) {
-        response.writeHead(400, { "Content-Type": "text/plain" });
-        return response.end("Meja tidak ditemukan");
-    }
-
-    // Insert ke tabel reservasi pakai id_meja dari DB
-    await db.run(
-        `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [
-            cookies.id_user,
-            new Date().toISOString().slice(0, 10),
-            mejaData.id_meja,
-            paxInput,
-            telpInput,
-            "aktif"
-        ]
-    );
-
-    response.writeHead(302, { Location: "/homepage_user" });
-    return response.end();
-}
 
 
     // untuk menampilkan card reservasi yang aktif di halaman user
