@@ -4,6 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loginUser } from './services/auth.service.js';
 import { getUserActiveReservation, getAllMeja, batalkanReservasi } from "./services/reservation.service.js";
+import { renderAdminPage } from "./services/admin_service.js";
+import { handleEditStatus } from "./services/admin_service.js";
 
 const server = new http.Server();
 
@@ -53,7 +55,7 @@ function authorizeRole(res, cookies, role){
     return true;
 }
 
-server.on("request", async (request, response) => {
+server.on("request", async(request, response) => {
     const method = request.method;
     const urlPath = request.url;
     // ambil cookie
@@ -132,11 +134,16 @@ server.on("request", async (request, response) => {
     if(method === "GET" && urlPath === "/homepage_admin"){
         if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
 
-        const filePath = path.join(__dirname, 'html', 'homepage_admin.html');
-        const data = fs.readFileSync(filePath);
+        const data = await renderAdminPage();
         response.writeHead(200, { 'Content-Type': 'text/html' });
         return response.end(data);
     }  
+
+    //admin update status
+    if(method === "POST" && urlPath ==="/update_status"){
+        if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
+        return await handleEditStatus(request, response);
+    }
 
     // untuk logout
     if(method === "GET" && urlPath === "/logout"){
