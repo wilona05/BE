@@ -50,6 +50,9 @@ async function loadReservation() {
             <div class="descLine">Jumlah Orang: ${data.jmlh_org}</div>
             <div class="descLine">Nomor Kontak: ${data.kontak}</div>
         `;
+        //Pastikan tidak bisa reservasi jika sudah memiliki reservasi yang aktif
+        const confirmReserveBtn = document.querySelector(".confirm-btn");
+        confirmReserveBtn.disabled = true;
     } catch (err) {
         console.error("Gagal load data reservasi:", err);
     }
