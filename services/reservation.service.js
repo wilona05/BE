@@ -77,11 +77,18 @@ export async function createReservation(req, res) {
 
         const id_meja = mejaData.id_meja; // angka dari database
 
+        
+
         // insert reservasi
         await db.run(
             `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
              VALUES (?, ?, ?, ?, ?, ?)`,
             [id_user, date, id_meja, paxInput, telpInput, "aktif"]
+        );
+
+        await db.run(
+            `UPDATE meja SET available = 0 WHERE id_meja = ?`,
+            [id_meja]
         );
 
         res.writeHead(302, { Location: "/homepage_user" });
