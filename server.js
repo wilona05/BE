@@ -133,8 +133,6 @@ server.on("request", async(request, response) => {
     if(method === "GET" && urlPath === "/homepage_admin"){
         if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
 
-        // const filePath = path.join(__dirname, 'html', 'homepage_admin.html');
-        // const data = fs.readFileSync(filePath);
         const data = await renderAdminPage();
         response.writeHead(200, { 'Content-Type': 'text/html' });
         return response.end(data);

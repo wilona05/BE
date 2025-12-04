@@ -39,7 +39,7 @@ export async function getReservasiDibatalkan(){
 
 export async function getJmlhPemesan(){
     const db = await dbPromise;
-    return db.get("SELECT COUNT(DISTINCT id_user) AS jmlhPemesan FROM users;")
+    return db.get("SELECT COUNT(DISTINCT u.id_user) AS jmlhPemesan FROM users u inner join reservasi r on u.id_user = r.id_user;")
 };
 
 export async function editStatus(id_reservasi, status){
