@@ -28,6 +28,16 @@ document.querySelector(".buttonYa").addEventListener("click", async function() {
     location.reload();
 });
 
+//pastikan meja sudah dipilih sebelum konfirmasi reservasi
+document.querySelector("form").addEventListener("submit", function(e) {
+    const selected = document.querySelector("input[name='meja']:checked");
+
+    if (!selected) {
+        e.preventDefault(); // cegah submit
+        alert("Silakan pilih meja terlebih dahulu!");
+    }
+});
+
 //Load reservasi dari server
 async function loadReservation() {
     try {
