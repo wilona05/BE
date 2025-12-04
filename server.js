@@ -1,11 +1,13 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import { URL } from "node:url";
 import { fileURLToPath } from "node:url";
 import { loginUser } from './services/auth.service.js';
 import { getUserActiveReservation, getAllMeja, batalkanReservasi } from "./services/reservation.service.js";
 import { renderAdminPage } from "./services/admin_service.js";
 import { handleEditStatus } from "./services/admin_service.js";
+import { createReservation } from "./services/reservation.service.js";
 
 const server = new http.Server();
 
@@ -158,18 +160,24 @@ server.on("request", async(request, response) => {
     }
     
     // untuk menampilkan form
-    if(method === "GET" && urlPath === "/form"){
-        const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
+    if (method === "GET" && urlPath.startsWith("/reservation")) {
+        if(!authorizeRole(response, cookies, "user")) return;
 
+        const requestUrl = new URL(request.url, `http://${request.headers.host}`);
+        const mejaDipilih = requestUrl.searchParams.get("meja");
+
+        console.log("Meja yang dikirim:", mejaDipilih);
+
+        const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
         fs.readFile(filePath, (err, data) => {
-            if(err){
-                response.writeHead(500, { 'Content-Type': 'text/plain' });
-                response.end('Internal server error');
-            }else{
-                response.writeHead(200, { 'Content-Type': 'text/html' });
-                response.end(data);
-            }
-        })
+            response.writeHead(200, { "Content-Type": "text/html" });
+            response.end(data);
+        });
+    }
+
+
+    if (method === "POST" && urlPath === "/reservation") {
+        return createReservation(request, response);
     }
 
     // untuk menampilkan card reservasi yang aktif di halaman user
