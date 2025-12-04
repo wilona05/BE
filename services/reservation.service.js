@@ -172,7 +172,7 @@ export async function batalkanReservasi(req, res, id_user) {
 
 export async function getAllReservations(){
     const db = await dbPromise;
-    return db.all("SELECT * FROM reservasi r INNER JOIN users u ON r.id_user = u.id_user;")
+    return db.all("SELECT * FROM users u INNER JOIN reservasi r ON u.id_user = r.id_user INNER JOIN meja m on r.id_meja = m.id_meja;")
 };
 
 export async function getTotalReservasi(){
