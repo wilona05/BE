@@ -78,8 +78,7 @@ export async function createReservation(req, res) {
 
         const id_meja = mejaData.id_meja; // angka dari database
 
-        
-
+    
         // insert reservasi
         await db.run(
             `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
