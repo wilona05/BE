@@ -62,28 +62,14 @@ function authorizeRole(res, cookies, role){
     return true;
 }
 
-function parseBody(request) {
-    return new Promise((resolve, reject) => {
+function parseBody(req) {
+    return new Promise((resolve) => {
         let body = "";
-
-        request.on("data", chunk => {
-            body += chunk.toString();
+        req.on("data", chunk => body += chunk.toString());
+        req.on("end", () => {
+            const data = new URLSearchParams(body);
+            resolve(Object.fromEntries(data));
         });
-
-        request.on("end", () => {
-            try {
-                const parsed = new URLSearchParams(body);
-                const result = {};
-                for (const [key, value] of parsed.entries()) {
-                    result[key] = value;
-                }
-                resolve(result);
-            } catch (err) {
-                reject(err);
-            }
-        });
-
-        request.on("error", reject);
     });
 }
 
