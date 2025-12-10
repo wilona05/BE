@@ -94,8 +94,6 @@ export async function createReservation(req, res) {
     }
 }
 
-
-
 export async function getUserActiveReservation(id_user) {
     const db = await dbPromise;
 
