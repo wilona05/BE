@@ -27,7 +27,7 @@ export async function renderAdminPage(){
             <td>${r.date}</td>
             <td>${r.nama}</td>
             <td>${r.kontak}</td>
-            <td>${r.id_meja}</td>
+            <td>${r.no_meja}</td>
             <td>${r.jmlh_org}</td>
             ${statusReservasi}
         </tr>

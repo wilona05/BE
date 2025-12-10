@@ -5,7 +5,7 @@ import { URL } from "node:url";
 import { fileURLToPath } from "node:url";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
-
+import { Readable } from "node:stream";
 
 // services
 import { loginUser } from './services/auth.service.js';
@@ -162,9 +162,10 @@ server.on("request", async(request, response) => {
         if(!authorizeRole(response, cookies, "user")) return; // jika bukan user, return
 
         const filePath = path.join(__dirname, 'html', 'homepage_user.html');
-        const data = fs.readFileSync(filePath);
-        response.writeHead(200, { 'Content-Type': 'text/html' });
-        return response.end(data);
+
+        const stream = fs.createReadStream(filePath);
+        response.writeHead(200, { "Content-Type": "text/html" });
+        stream.pipe(response);
     }  
 
     // untuk menampilkan homepage admin
@@ -195,102 +196,52 @@ server.on("request", async(request, response) => {
     }
     
     // untuk menampilkan form
-if (method === "GET" && urlPath.startsWith("/reservation")) {
-    if (!authorizeRole(response, cookies, "user")) return;
+    if (method === "GET" && urlPath.startsWith("/reservation")) {
+        if (!authorizeRole(response, cookies, "user")) return;
 
-    if (!cookies.id_user) {
-        response.writeHead(302, { Location: "/login" });
-        return response.end();
+        if (!cookies.id_user) {
+            response.writeHead(302, { Location: "/login" });
+            return response.end();
+        }
+
+        const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
+        const data = fs.readFileSync(filePath);
+        response.writeHead(200, { "Content-Type": "text/html" });
+        return response.end(data);
     }
 
-    const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
-    const data = fs.readFileSync(filePath);
-    response.writeHead(200, { "Content-Type": "text/html" });
-    return response.end(data);
-}
 
-
-if (method === "POST" && urlPath === "/reservation") {
-    const body = await parseBody(request);
-    const { namaInput, telpInput, paxInput, idMeja } = body;
-
-    // gunakan cookies dari atas
-    if (!cookies.id_user) {
-        response.writeHead(401, { "Content-Type": "text/plain" });
-        return response.end("Harus login");
+    if (method === "POST" && urlPath === "/reservation") {
+        return createReservation(request, response);
     }
-
-    const db = await dbPromise;
-
-    // Cari id_meja berdasarkan no_meja
-    const mejaData = await db.get(
-        "SELECT id_meja FROM meja WHERE no_meja = ?",
-        [idMeja]
-    );
-
-    if (!mejaData) {
-        response.writeHead(400, { "Content-Type": "text/plain" });
-        return response.end("Meja tidak ditemukan");
-    }
-
-    // Insert ke tabel reservasi pakai id_meja dari DB
-    await db.run(
-        `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [
-            cookies.id_user,
-            new Date().toISOString().slice(0, 10),
-            mejaData.id_meja,
-            paxInput,
-            telpInput,
-            "aktif"
-        ]
-    );
-
-    response.writeHead(302, { Location: "/homepage_user" });
-    return response.end();
-}
 
 
     // untuk menampilkan card reservasi yang aktif di halaman user
     if (method === "GET" && urlPath === "/reservasi-user") {
         const cookies = parseCookies(request.headers.cookie);
 
-
-        if (!cookies.id_user) {
-            response.writeHead(401, { "Content-Type": "text/plain" });
-            return response.end("No user ID in cookie");
-        }
-
         const data = await getUserActiveReservation(cookies.id_user);
 
+        // kirim data reservasi aktif. kalau ga ada reservasi aktif, kirim JSON kosong {}
         response.writeHead(200, { "Content-Type": "application/json" });
-        return response.end(JSON.stringify(data || {}));
+        const stream = Readable.from(JSON.stringify(data || {}));
+        stream.pipe(response);
     }
 
     // untuk menampilkan button2 meja yang available & unavailable
     if (method === "GET" && urlPath === "/meja-list") {
         const cookies = parseCookies(request.headers.cookie);
 
-        if (!cookies.id_user) {
-            response.writeHead(401, { "Content-Type": "text/plain" });
-            return response.end("No user ID in cookie");
-        }
-
         const meja = await getAllMeja();
 
         response.writeHead(200, { "Content-Type": "application/json" });
-        return response.end(JSON.stringify(meja));
+        const stream = Readable.from(JSON.stringify(meja));
+        stream.pipe(response);
     }
 
     // untuk membatalkan reservasi user
     if (method === "POST" && urlPath === "/batal-reservasi") {
         const cookies = parseCookies(request.headers.cookie);
-
-        if (!cookies.id_user) {
-            response.writeHead(401, { "Content-Type": "text/plain" });
-            return response.end("No user ID in cookie");
-        }
 
         return batalkanReservasi(request, response, cookies.id_user);
     }

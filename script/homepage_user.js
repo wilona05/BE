@@ -28,6 +28,16 @@ document.querySelector(".buttonYa").addEventListener("click", async function() {
     location.reload();
 });
 
+//pastikan meja sudah dipilih sebelum konfirmasi reservasi
+document.querySelector("form").addEventListener("submit", function(e) {
+    const selected = document.querySelector("input[name='meja']:checked");
+
+    if (!selected) {
+        e.preventDefault(); // cegah submit
+        alert("Silakan pilih meja terlebih dahulu!");
+    }
+});
+
 //Load reservasi dari server
 async function loadReservation() {
     try {
@@ -50,6 +60,9 @@ async function loadReservation() {
             <div class="descLine">Jumlah Orang: ${data.jmlh_org}</div>
             <div class="descLine">Nomor Kontak: ${data.kontak}</div>
         `;
+        //Pastikan tidak bisa reservasi jika sudah memiliki reservasi yang aktif
+        const confirmReserveBtn = document.querySelector(".confirm-btn");
+        confirmReserveBtn.disabled = true;
     } catch (err) {
         console.error("Gagal load data reservasi:", err);
     }
