@@ -172,9 +172,11 @@ server.on("request", async(request, response) => {
     if(method === "GET" && urlPath === "/homepage_admin"){
         if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
 
-        const data = await renderAdminPage();
+        const html = await renderAdminPage();
+        const stream = Readable.from(html); //readable stream dari string html
         response.writeHead(200, { 'Content-Type': 'text/html' });
-        return response.end(data);
+        // return response.end(data);
+        stream.pipe(response);
     }  
 
     //admin update status
