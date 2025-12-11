@@ -79,7 +79,7 @@ label[for=password]{
     margin:10px;
 }
 
-input[type=text]{
+input{
     grid-column: 1/-1;
     grid-row:2;
 }
