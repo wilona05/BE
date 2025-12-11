@@ -185,9 +185,13 @@ server.on("request", async(request, response) => {
 
         const html = await renderAdminPage();
         const stream = Readable.from(html); //readable stream dari string html
-        response.writeHead(200, { 'Content-Type': 'text/html' });
+        const gzip = zlib.createGzip(); 
+        response.writeHead(200, { 
+            "Content-Type": "text/html",
+            "Content-Encoding": "gzip"
+        });
         // return response.end(data);
-        stream.pipe(response);
+        stream.pipe(gzip).pipe(response);
     }  
 
     // admin update status
