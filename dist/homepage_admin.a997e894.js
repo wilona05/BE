@@ -1,0 +1,2 @@
+document.getElementById("historiReservasi").addEventListener("change",function(e){let t=e.target,n=t.value,s=t.id.replace("row-",""),a=document.getElementById(s);fetch("/update_status",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:s,status:n})}).then(e=>e.json()).then(e=>{e.success&&(a.innerHTML=`${n}`,location.reload())})});
+//# sourceMappingURL=homepage_admin.a997e894.js.map

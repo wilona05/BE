@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><link rel=stylesheet href=/homepage_admin.1e92dfb9.css><link rel=stylesheet href=/form_reservasi.39ba6578.css><script src=/homepage_admin.a997e894.js defer></script><title>Kulineria | Admin</title><body>
+    <header>        
+        <div class=leftHeader>
+            <img src=/kulineria-png.fa81f321.png alt="Kulineria Logo" class=logo>
+        </div>
+        <div class=rightHeader>
+            <a href=/logout>
+                <button type=button class=logout_btn>Log Out</button>
+            </a>
+        </div>   
+    </header>
+    
+    <main>
+        <h1>Histori Reservasi</h1>
+    
+        <div class=content>
+            <div class=left>
+                <div class=container>
+                    <div class=card>
+                        <img src=/denah.a1051a7b.png alt=Denah>
+                    </div>
+    
+                    <table> 
+                        <thead>
+                            <tr>
+                                <th>Ringkasan Reservasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Total Reservasi: {{totalReservasi}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Reservasi Aktif: {{reservasiAktif}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Reservasi Selesai: {{reservasiSelesai}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Reservasi Dibatalkan: {{reservasiDibatalkan}}</td>
+                            </tr>
+                            <tr>
+                                <td>Jumlah Pemesan Unik: {{jmlhPemesan}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    
+            <div class=right>
+                <div class=container>
+                    
+                            {{reservationTable}}
+                            <table id=historiReservasi> 
+                        <thead>
+                            <tr>
+                                <th>ID Reservasi</th>
+                                <th>Tanggal Reservasi</th>
+                                <th>Nama Pemesan</th>
+                                <th>Nomor Kontak</th>
+                                <th>Nomor Meja</th>
+                                <th>Jumlah Orang</th>
+                                <th>Status Reservasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
