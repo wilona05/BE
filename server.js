@@ -194,7 +194,7 @@ server.on("request", async(request, response) => {
         stream.pipe(gzip).pipe(response);
     }  
 
-    //admin update status
+    // admin update status
     if(method === "POST" && urlPath ==="/update_status"){
         if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
         return await handleEditStatus(request, response);
@@ -243,7 +243,7 @@ server.on("request", async(request, response) => {
     // untuk menampilkan button2 meja yang available & unavailable
     if (method === "GET" && urlPath === "/meja-list") {
         const meja = await getAllMeja();
-        return streamJsonCompressed(request, response, data);
+        return streamJsonCompressed(request, response, meja);
     }
 
     // untuk membatalkan reservasi user

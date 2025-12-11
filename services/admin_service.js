@@ -53,7 +53,7 @@ export async function handleEditStatus(request, response){
     request.on("end", async() => {
         try{
             const { id, status } = JSON.parse(body);
-            if(status === "aktif"){
+            if(status != "batal" && status != "selesai"){
                 response.writeHead(400, { "Content-Type": "application/json" });
                 return response.end(JSON.stringify({
                     success: false,

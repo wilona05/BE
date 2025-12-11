@@ -75,16 +75,11 @@ export async function loginUser(req, res){
                 "Location": "/homepage_user"
             })
         }
-        res.end();
-        
         return res.end(); 
 
     } catch (compareError) {
         console.error("Kesalahan saat membandingkan hash (Internal Error):", compareError);
         res.writeHead(500, { "Content-Type": 'text/plain' });
         return res.end("Terjadi kesalahan server saat memproses login.");
-    }
-
-
-    
+    }   
 }

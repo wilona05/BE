@@ -104,12 +104,6 @@ export async function createReservation(req, res) {
             [id_user, date, id_meja, paxInput, telpInput, "aktif"]
         );
 
-        // tandai meja menjadi not available
-        await db.run(
-            `UPDATE meja SET available = 0 WHERE id_meja = ?`,
-            [id_meja]
-        );
-
         // redirect menggunakan
         res.writeHead(302, {
             Location: "/homepage_user",
