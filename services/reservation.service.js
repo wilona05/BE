@@ -1,6 +1,7 @@
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import path from "node:path";
+import zlib from "zlib";
 import { fileURLToPath } from "node:url";
 import { Readable } from "node:stream";
 
@@ -42,6 +43,16 @@ function parseBodyJSON(request) {
     });
 }
 
+// function helper untuk mengirim gzip
+function sendGzip(res, content, status = 200, contentType = "text/plain") {
+    const compressed = zlib.gzipSync(content);
+    res.writeHead(status, {
+        "Content-Type": contentType,
+        "Content-Encoding": "gzip"
+    });
+    res.end(compressed);
+}
+
 export async function createReservation(req, res) {
     try {
         const body = await parseBody(req);
@@ -49,7 +60,7 @@ export async function createReservation(req, res) {
 
         const db = await dbPromise;
 
-        // Ambil cookie untuk id_user
+        // ambil cookie untuk id_user
         const cookieHeader = req.headers.cookie || "";
         const cookies = Object.fromEntries(
             cookieHeader.split("; ").map(c => c.split("="))
@@ -58,27 +69,34 @@ export async function createReservation(req, res) {
         const id_user = cookies.id_user;
 
         if (!id_user) {
-            res.writeHead(401, { "Content-Type": "text/plain" });
-            return res.end("Anda harus login terlebih dahulu.");
+            return sendGzip(res, "Anda harus login terlebih dahulu.", 401);
         }
 
-        // Membuat tanggal
         const date = new Date().toISOString().slice(0, 10);
 
-        // Ambil id_meja berdasarkan no_meja (A1/B2/C3)
+        // mengecek nomor meja
         const mejaData = await db.get(
-            `SELECT id_meja FROM meja WHERE no_meja = ?`,
+            `SELECT id_meja, no_meja FROM meja WHERE no_meja = ?`,
             [idMeja]
         );
 
         if (!mejaData) {
-            res.writeHead(400, { "Content-Type": "text/plain" });
-            return res.end("Meja tidak ditemukan");
+            return sendGzip(res, "Nomor meja tidak ditemukan.", 400);
         }
 
-        const id_meja = mejaData.id_meja; // angka dari database
+        const id_meja = mejaData.id_meja;
 
-    
+        // mengecek apakah meja available
+        const cekAvailability = await db.get(
+            `SELECT COUNT(*) AS count FROM reservasi 
+             WHERE id_meja = ? AND date = ? AND status = 'aktif'`,
+            [id_meja, date]
+        );
+
+        if (cekAvailability.count > 0) {
+            return sendGzip(res, "Meja ini sedang tidak tersedia.", 400);
+        }
+
         // insert reservasi
         await db.run(
             `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
@@ -86,22 +104,18 @@ export async function createReservation(req, res) {
             [id_user, date, id_meja, paxInput, telpInput, "aktif"]
         );
 
-        await db.run(
-            `UPDATE meja SET available = 0 WHERE id_meja = ?`,
-            [id_meja]
-        );
-
-        res.writeHead(302, { Location: "/homepage_user" });
-        return res.end();
+        // redirect menggunakan
+        res.writeHead(302, {
+            Location: "/homepage_user",
+            "Content-Encoding": "gzip"
+        });
+        return res.end(zlib.gzipSync(""));
 
     } catch (err) {
         console.error(err);
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        return res.end("Terjadi kesalahan saat membuat reservasi");
+        return sendGzip(res, "Terjadi kesalahan saat membuat reservasi", 500);
     }
 }
-
-
 
 export async function getUserActiveReservation(id_user) {
     const db = await dbPromise;
