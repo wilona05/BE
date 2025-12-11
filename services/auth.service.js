@@ -25,7 +25,7 @@ function parseBody(req) {
 }
 
 // untuk compress dan chunking
-function streamCompressed(status, res, bodyText){
+function streamCompressed(res, status, bodyText){
     res.writeHead(status, {
         "Content-Type": "text/plain",
         "Content-Encoding": "gzip" // pakai algoritma gzip
