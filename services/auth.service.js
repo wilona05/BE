@@ -3,6 +3,7 @@ import { open } from "sqlite";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as bcrypt from 'bcrypt';
+import zlib from "node:zlib";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +24,18 @@ function parseBody(req) {
     });
 }
 
+// untuk compress dan chunking
+function streamCompressed(res, status, bodyText){
+    res.writeHead(status, {
+        "Content-Type": "text/plain",
+        "Content-Encoding": "gzip" // pakai algoritma gzip
+    });
+
+    const gzip = zlib.createGzip();
+    gzip.pipe(res); // compressed dan chunked
+    gzip.end(bodyText)
+}
+
 export async function loginUser(req, res){
     const body = await parseBody(req);
     const { email, password } = body;
@@ -36,10 +49,7 @@ export async function loginUser(req, res){
 
     // jika user tidak ditemukan
     if(!user){
-        res.writeHead(401, {
-            "Content-Type": 'text/plain'                
-        });
-        return res.end("Email atau password salah");
+        return streamCompressed(res, 401, "Email atau password salah");
     }
 
     const submittedPassword = password; //input dri user
@@ -51,8 +61,7 @@ export async function loginUser(req, res){
 
         if (!isMatch) {
             console.log(`Login GAGAL untuk ${email}: Password tidak cocok.`);
-            res.writeHead(401, { "Content-Type": 'text/plain' });
-            return res.end("Email atau password salah");
+            return streamCompressed(res, 401, "Email atau password salah");
         }
 
         console.log(`Login BERHASIL untuk ${email}!`);
@@ -79,7 +88,6 @@ export async function loginUser(req, res){
 
     } catch (compareError) {
         console.error("Kesalahan saat membandingkan hash (Internal Error):", compareError);
-        res.writeHead(500, { "Content-Type": 'text/plain' });
-        return res.end("Terjadi kesalahan server saat memproses login.");
+        streamCompressed(res, 500, "Terjadi kesalahan server saat memproses login.");
     }   
 }
