@@ -112,33 +112,29 @@ server.on("request", async(request, response) => {
     // ambil cookie
     const cookies = parseCookies(request.headers.cookie);
 
+
     // untuk mengambil assets
     const publicDir = ["css", "script", "assets", "html"];
     for(const folder of publicDir){
         if(urlPath.startsWith( `/${folder}`)){
             const filePath = path.join(__dirname, urlPath);
 
-            fs.readFile(filePath, (err, data) => {
-                if(err){
-                    response.writeHead(404, { "Content-Type": "text/plain" });
-                    response.end("File not found");
-                    return;
-                }
+            const ext = path.extname(filePath);
+            const mimes = {
+                ".html": "text/html",
+                ".css": "text/css",
+                ".js": "text/javascript",
+                ".png": "image/png",
+                ".webp": "image/webp",
+            }
 
-                const ext = path.extname(filePath);
-                const mimes = {
-                    ".html": "text/html",
-                    ".css": "text/css",
-                    ".js": "text/javascript",
-                    ".png": "image/png",
-                    ".webp": "image/webp",
-                }
+            if([".html", ".css", ".js"].includes(ext)){
+                return streamCompressed(response, filePath, mimes[ext]);
+            }
 
-                response.writeHead(200, { "Content-Type": mimes[ext] || "application/octet-stream" });
-                response.end(data);
-            });
-
-            return;
+            response.writeHead(200, { "Content-Type": mimes[ext] || "application/octet-stream" });
+            const stream = fs.createReadStream(filePath);
+            return stream.pipe(response);
         }
     }
 
@@ -222,9 +218,7 @@ server.on("request", async(request, response) => {
         }
 
         const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
-        const data = fs.readFileSync(filePath);
-        response.writeHead(200, { "Content-Type": "text/html" });
-        return response.end(data);
+        return streamCompressed(response, filePath, "text/html");
     }
 
     // untuk menambahkan reservasi baru
