@@ -1,11 +1,11 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
-import { URL } from "node:url";
 import { fileURLToPath } from "node:url";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import { Readable } from "node:stream";
+import zlib from "node:zlib";
 
 // services
 import { loginUser } from './services/auth.service.js';
@@ -44,6 +44,45 @@ function parseCookies(cookieHeader) {
     return cookies;
 }
 
+// untuk compress dan chunking
+function streamCompressed(res, filePath, contentType){
+    res.writeHead(200, {
+        "Content-Type": contentType,
+        "Content-Encoding": "gzip" // pakai algoritma gzip
+    });
+
+    const fileStream = fs.createReadStream(filePath);
+    const gzip = zlib.createGzip();
+
+    fileStream.pipe(gzip).pipe(res); // compressed dan chunked
+}
+
+// untuk compress dan chunking json
+function streamJsonCompressed(req, res, data) {
+    // untuk reservasi, kirim data reservasi aktif. kalau ga ada reservasi aktif, kirim JSON kosong {}
+    const json = JSON.stringify(data || {});
+    const source = Readable.from(json);
+
+    const acceptEncoding = req.headers["accept-encoding"] || ""; // pastikan terima encoding
+
+    if (acceptEncoding.includes("gzip")) { // kalau terima gzip
+        res.writeHead(200, {
+            "Content-Type": "application/json",
+            "Content-Encoding": "gzip"
+        });
+
+        const gzip = zlib.createGzip();
+        source.pipe(gzip).pipe(res);
+
+    } else { // kalau tidak terima gzip
+        res.writeHead(200, {
+            "Content-Type": "application/json"
+        });
+
+        source.pipe(res);
+    }
+}
+
 // untuk mengecek role
 function authorizeRole(res, cookies, role){
     if(!cookies.role){ // jika belum login, lempar ke halaman login
@@ -60,31 +99,6 @@ function authorizeRole(res, cookies, role){
     }
 
     return true;
-}
-
-function parseBody(request) {
-    return new Promise((resolve, reject) => {
-        let body = "";
-
-        request.on("data", chunk => {
-            body += chunk.toString();
-        });
-
-        request.on("end", () => {
-            try {
-                const parsed = new URLSearchParams(body);
-                const result = {};
-                for (const [key, value] of parsed.entries()) {
-                    result[key] = value;
-                }
-                resolve(result);
-            } catch (err) {
-                reject(err);
-            }
-        });
-
-        request.on("error", reject);
-    });
 }
 
 const dbPromise = open({
@@ -147,9 +161,8 @@ server.on("request", async(request, response) => {
         }
 
         const filePath = path.join(__dirname, 'html', 'login.html');
-        const data = fs.readFileSync(filePath);
-        response.writeHead(200, { 'Content-Type': 'text/html' });
-        return response.end(data);
+        // chunking dan compressing
+        return streamCompressed(response, filePath, "text/html");
     }
 
     // untuk fitur login
@@ -162,22 +175,26 @@ server.on("request", async(request, response) => {
         if(!authorizeRole(response, cookies, "user")) return; // jika bukan user, return
 
         const filePath = path.join(__dirname, 'html', 'homepage_user.html');
-
-        const stream = fs.createReadStream(filePath);
-        response.writeHead(200, { "Content-Type": "text/html" });
-        stream.pipe(response);
+        // chunking dan compressing
+        return streamCompressed(response, filePath, "text/html");
     }  
 
     // untuk menampilkan homepage admin
     if(method === "GET" && urlPath === "/homepage_admin"){
         if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
 
-        const data = await renderAdminPage();
-        response.writeHead(200, { 'Content-Type': 'text/html' });
-        return response.end(data);
+        const html = await renderAdminPage();
+        const stream = Readable.from(html); //readable stream dari string html
+        const gzip = zlib.createGzip(); 
+        response.writeHead(200, { 
+            "Content-Type": "text/html",
+            "Content-Encoding": "gzip"
+        });
+        // return response.end(data);
+        stream.pipe(gzip).pipe(response);
     }  
 
-    //admin update status
+    // admin update status
     if(method === "POST" && urlPath ==="/update_status"){
         if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
         return await handleEditStatus(request, response);
@@ -210,39 +227,28 @@ server.on("request", async(request, response) => {
         return response.end(data);
     }
 
-
+    // untuk menambahkan reservasi baru
     if (method === "POST" && urlPath === "/reservation") {
         return createReservation(request, response);
     }
 
-
     // untuk menampilkan card reservasi yang aktif di halaman user
     if (method === "GET" && urlPath === "/reservasi-user") {
         const cookies = parseCookies(request.headers.cookie);
-
         const data = await getUserActiveReservation(cookies.id_user);
 
-        // kirim data reservasi aktif. kalau ga ada reservasi aktif, kirim JSON kosong {}
-        response.writeHead(200, { "Content-Type": "application/json" });
-        const stream = Readable.from(JSON.stringify(data || {}));
-        stream.pipe(response);
+        return streamJsonCompressed(request, response, data);
     }
 
     // untuk menampilkan button2 meja yang available & unavailable
     if (method === "GET" && urlPath === "/meja-list") {
-        const cookies = parseCookies(request.headers.cookie);
-
         const meja = await getAllMeja();
-
-        response.writeHead(200, { "Content-Type": "application/json" });
-        const stream = Readable.from(JSON.stringify(meja));
-        stream.pipe(response);
+        return streamJsonCompressed(request, response, meja);
     }
 
     // untuk membatalkan reservasi user
     if (method === "POST" && urlPath === "/batal-reservasi") {
         const cookies = parseCookies(request.headers.cookie);
-
         return batalkanReservasi(request, response, cookies.id_user);
     }
 });
