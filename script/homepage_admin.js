@@ -13,7 +13,7 @@ document.getElementById("historiReservasi").addEventListener("change", function(
     //kirim update status ke server
     fetch("/update_status", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Transfer-Encoding": "chunked" },
         body: JSON.stringify({ id: cellId, status: value })
     })
     //terima response dari server

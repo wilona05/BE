@@ -17,7 +17,7 @@ document.querySelector(".buttonYa").addEventListener("click", async function() {
     // Membatalkan reservasi dengan id reservasi ini
     await fetch("/batal-reservasi", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Transfer-Encoding": "chunked" },
         body: JSON.stringify({ id_reservasi: currentReservationId })
     });
 

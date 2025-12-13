@@ -78,17 +78,22 @@ export async function createReservation(req, res) {
 
         const id_meja = mejaData.id_meja; // angka dari database
 
-    
+        // mengecek apakah meja available
+        const cekAvailability = await db.get(
+            `SELECT COUNT(*) AS count FROM reservasi 
+             WHERE id_meja = ? AND date = ? AND status = 'aktif'`,
+            [id_meja, date]
+        );
+
+        if (cekAvailability.count > 0) {
+            return sendGzip(res, "Meja ini sedang tidak tersedia.", 400);
+        }
+        
         // insert reservasi
         await db.run(
             `INSERT INTO reservasi (id_user, date, id_meja, jmlh_org, kontak, status)
              VALUES (?, ?, ?, ?, ?, ?)`,
             [id_user, date, id_meja, paxInput, telpInput, "aktif"]
-        );
-
-        await db.run(
-            `UPDATE meja SET available = 0 WHERE id_meja = ?`,
-            [id_meja]
         );
 
         res.writeHead(302, { Location: "/homepage_user" });
@@ -100,8 +105,6 @@ export async function createReservation(req, res) {
         return res.end("Terjadi kesalahan saat membuat reservasi");
     }
 }
-
-
 
 export async function getUserActiveReservation(id_user) {
     const db = await dbPromise;
