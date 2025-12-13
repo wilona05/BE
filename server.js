@@ -114,7 +114,7 @@ server.on("request", async(request, response) => {
 
 
     // untuk mengambil assets
-    const publicDir = ["css", "script", "assets", "html"];
+    const publicDir = ["assets", "minify"];
     for(const folder of publicDir){
         if(urlPath.startsWith( `/${folder}`)){
             const filePath = path.join(__dirname, urlPath);
@@ -156,7 +156,7 @@ server.on("request", async(request, response) => {
             return response.end();
         }
 
-        const filePath = path.join(__dirname, 'html', 'login.html');
+        const filePath = path.join(__dirname, 'minify', 'login_mini.html');
         // chunking dan compressing
         return streamCompressed(response, filePath, "text/html");
     }
@@ -170,7 +170,7 @@ server.on("request", async(request, response) => {
     if(method === "GET" && urlPath === "/homepage_user"){
         if(!authorizeRole(response, cookies, "user")) return; // jika bukan user, return
 
-        const filePath = path.join(__dirname, 'html', 'homepage_user.html');
+        const filePath = path.join(__dirname, 'minify', 'homepage_user_mini.html');
         // chunking dan compressing
         return streamCompressed(response, filePath, "text/html");
     }  
@@ -184,7 +184,8 @@ server.on("request", async(request, response) => {
         const gzip = zlib.createGzip(); 
         response.writeHead(200, { 
             "Content-Type": "text/html",
-            "Content-Encoding": "gzip"
+            "Content-Encoding": "gzip",
+            "Transfer-Encoding": "chunked"
         });
         // return response.end(data);
         stream.pipe(gzip).pipe(response);
@@ -217,7 +218,7 @@ server.on("request", async(request, response) => {
             return response.end();
         }
 
-        const filePath = path.join(__dirname, 'html', 'form_reservasi.html');
+        const filePath = path.join(__dirname, 'minify', 'form_reservasi_mini.html');
         return streamCompressed(response, filePath, "text/html");
     }
 

@@ -28,7 +28,8 @@ function parseBody(req) {
 function streamCompressed(res, status, bodyText){
     res.writeHead(status, {
         "Content-Type": "text/plain",
-        "Content-Encoding": "gzip" // pakai algoritma gzip
+        "Content-Encoding": "gzip", // pakai algoritma gzip
+        "Transfer-Encoding": "chunked"
     });
 
     const gzip = zlib.createGzip();
@@ -58,7 +59,6 @@ export async function loginUser(req, res){
     try {
         const isMatch = await bcrypt.compare(submittedPassword, storedHash);
         
-
         if (!isMatch) {
             console.log(`Login GAGAL untuk ${email}: Password tidak cocok.`);
             return streamCompressed(res, 401, "Email atau password salah");

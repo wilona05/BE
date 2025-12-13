@@ -33,7 +33,7 @@ export async function renderAdminPage(){
         </tr>
     `}).join("")
 
-    const template = await fs.readFile("./html/homepage_admin.html", "utf8")
+    const template = await fs.readFile("./minify/homepage_admin_mini.html", "utf8")
     return template
         .replace("{{totalReservasi}}", totalReservasi)
         .replace("{{reservasiAktif}}", reservasiAktif)
