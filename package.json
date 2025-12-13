@@ -20,6 +20,7 @@
     "dev": "npm-run-all --parallel dev:frontend dev:backend",
     "build": "parcel build html/form_reservasi.html html/homepage_admin.html html/homepage_user.html html/login.html"
   },
+  
   "dependencies": {
     "bcrypt": "^6.0.0",
     "sqlite": "^5.1.1",
