@@ -1,4 +1,4 @@
-import https from "node:https";
+import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,11 +7,11 @@ import { open } from "sqlite";
 import { Readable } from "node:stream";
 import zlib from "node:zlib";
 
-// https certificate
-const privateKeyPath = path.resolve(import.meta.dirname, "private-key.pem");
-const certificatePath = path.resolve(import.meta.dirname, "certificate.pem");
-const privateKey = fs.readFileSync(privateKeyPath);
-const certificate = fs.readFileSync(certificatePath);
+// // https certificate
+// const privateKeyPath = path.resolve(import.meta.dirname, "private-key.pem");
+// const certificatePath = path.resolve(import.meta.dirname, "certificate.pem");
+// const privateKey = fs.readFileSync(privateKeyPath);
+// const certificate = fs.readFileSync(certificatePath);
 
 // services
 import { loginUser } from './services/auth.service.js';
@@ -20,10 +20,11 @@ import { renderAdminPage } from "./services/admin_service.js";
 import { handleEditStatus } from "./services/admin_service.js";
 import { createReservation } from "./services/reservation.service.js";
 
-const server = https.Server({
-   key: privateKey,
-   cert: certificate,
-})
+// const server = https.Server({
+//    key: privateKey,
+//    cert: certificate,
+// })
+const server = new http.Server();
 
 
 // untuk mengambil file dan database
@@ -121,7 +122,6 @@ server.on("request", async(request, response) => {
     const urlPath = request.url;
     // ambil cookie
     const cookies = parseCookies(request.headers.cookie);
-
 
     // untuk mengambil assets
     const publicDir = ["assets", "minify"];
@@ -258,5 +258,6 @@ server.on("request", async(request, response) => {
     }
 });
 
-server.listen(8080);
-console.log('The server is running! Check it on https://localhost:8080/');
+server.listen(3000, "127.0.0.1");
+// console.log('The server is running! Check it on https://localhost:8080/');
+console.log('The server is running! Check it on http://127.0.0.1:3000');
