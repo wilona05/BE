@@ -30,8 +30,12 @@ proxy.on("request", (request, response) => {
     request.pipe(server);
 
     server.on("response", (serverResponse) => {
-        serverResponse.pipe(response);
-    });
+    response.writeHead(
+        serverResponse.statusCode,
+        serverResponse.headers
+    );
+    serverResponse.pipe(response);
+});
 });
 
 proxy.listen(8080);
