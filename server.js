@@ -1,4 +1,4 @@
-import http from "node:http";
+import https from "node:https";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,6 +7,12 @@ import { open } from "sqlite";
 import { Readable } from "node:stream";
 import zlib from "node:zlib";
 
+// https certificate
+const privateKeyPath = path.resolve(import.meta.dirname, "private-key.pem");
+const certificatePath = path.resolve(import.meta.dirname, "certificate.pem");
+const privateKey = fs.readFileSync(privateKeyPath);
+const certificate = fs.readFileSync(certificatePath);
+
 // services
 import { loginUser } from './services/auth.service.js';
 import { getUserActiveReservation, getAllMeja, batalkanReservasi } from "./services/reservation.service.js";
@@ -14,7 +20,11 @@ import { renderAdminPage } from "./services/admin_service.js";
 import { handleEditStatus } from "./services/admin_service.js";
 import { createReservation } from "./services/reservation.service.js";
 
-const server = new http.Server();
+const server = https.Server({
+   key: privateKey,
+   cert: certificate,
+})
+
 
 // untuk mengambil file dan database
 const __filename = fileURLToPath(import.meta.url);
@@ -249,4 +259,4 @@ server.on("request", async(request, response) => {
 });
 
 server.listen(8080);
-console.log('The server is running! Check it on http://localhost:8080/');
+console.log('The server is running! Check it on https://localhost:8080/');
