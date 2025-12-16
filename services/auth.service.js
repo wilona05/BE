@@ -14,7 +14,7 @@ const dbPromise = open({
     // filename: path.join(__dirname, "mydb.sqlite"),
     driver: sqlite3.Database
 });
-console.log("AUTH DB PATH =", path.resolve(__dirname, "../mydb.sqlite"));
+
 function parseBody(req) {
     return new Promise((resolve) => {
         let body = "";
