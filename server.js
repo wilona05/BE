@@ -6,6 +6,7 @@ import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import { Readable } from "node:stream";
 import zlib from "node:zlib";
+import { verifyToken } from "./utils/jwt.js";
 
 // // https certificate
 // const privateKeyPath = path.resolve(import.meta.dirname, "private-key.pem");
@@ -94,17 +95,33 @@ function streamJsonCompressed(req, res, data) {
     }
 }
 
+function getAuthUser(cookies) {
+    if (!cookies.auth_token) return null;
+
+    try {
+        return verifyToken(cookies.auth_token);
+    } catch {
+        return null;
+    }
+}
+
 // untuk mengecek role
 function authorizeRole(res, cookies, role){
-    if(!cookies.role){ // jika belum login, lempar ke halaman login
-        res.writeHead(302, {Location: "/login"});
+    const user = getAuthUser(cookies);
+
+    if (!user) {
+        res.writeHead(302, { Location: "/login" });
         res.end();
         return false;
     }
 
-    if(cookies.role !== role){ // jika role salah, lempar ke homepage sesuai role
-        const target = cookies.role === "admin" ? "/homepage_admin" : "/homepage_user";
-        res.writeHead(302, {Location: target});
+    if (user.role !== role) {
+        const target =
+            user.role === "admin"
+                ? "/homepage_admin"
+                : "/homepage_user";
+
+        res.writeHead(302, { Location: target });
         res.end();
         return false;
     }
