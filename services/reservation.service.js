@@ -3,6 +3,7 @@ import { open } from "sqlite";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Readable } from "node:stream";
+import { verifyToken } from "../utils/jwt.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,6 +12,21 @@ const dbPromise = open({
     filename: path.join(process.cwd(), "mydb.sqlite"),
     driver: sqlite3.Database
 });
+
+function getAuthUser(req) {
+    const cookieHeader = req.headers.cookie || "";
+    const cookies = Object.fromEntries(
+        cookieHeader.split("; ").map(c => c.split("="))
+    );
+    
+    if (!cookies.auth_token) return null;
+
+    try {
+        return verifyToken(cookies.auth_token);
+    } catch {
+        return null;
+    }
+}
 
 function parseBody(req) {
     return new Promise((resolve) => {
@@ -49,13 +65,14 @@ export async function createReservation(req, res) {
 
         const db = await dbPromise;
 
-        // Ambil cookie untuk id_user
-        const cookieHeader = req.headers.cookie || "";
-        const cookies = Object.fromEntries(
-            cookieHeader.split("; ").map(c => c.split("="))
-        );
+        // ambil user
+        const user = getAuthUser(req);
+        if(!user){
+            res.writeHead(401, { "Content-Type": "text/plain" });
+            return res.end("Anda harus login terlebih dahulu.");
+        }
 
-        const id_user = cookies.id_user;
+        const id_user = user.id_user;
 
         if (!id_user) {
             res.writeHead(401, { "Content-Type": "text/plain" });
