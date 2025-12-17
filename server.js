@@ -2,17 +2,9 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
 import { Readable } from "node:stream";
 import zlib from "node:zlib";
 import { verifyToken } from "./utils/jwt.js";
-
-// // https certificate
-// const privateKeyPath = path.resolve(import.meta.dirname, "private-key.pem");
-// const certificatePath = path.resolve(import.meta.dirname, "certificate.pem");
-// const privateKey = fs.readFileSync(privateKeyPath);
-// const certificate = fs.readFileSync(certificatePath);
 
 // services
 import { loginUser } from './services/auth.service.js';
@@ -21,12 +13,7 @@ import { renderAdminPage } from "./services/admin_service.js";
 import { handleEditStatus } from "./services/admin_service.js";
 import { createReservation } from "./services/reservation.service.js";
 
-// const server = https.Server({
-//    key: privateKey,
-//    cert: certificate,
-// })
 const server = new http.Server();
-
 
 // untuk mengambil file dan database
 const __filename = fileURLToPath(import.meta.url);
@@ -95,6 +82,7 @@ function streamJsonCompressed(req, res, data) {
     }
 }
 
+// untuk mengambil cookie setelah di-encrypt
 function getAuthUser(cookies) {
     if (!cookies.auth_token) return null;
 
@@ -104,35 +92,6 @@ function getAuthUser(cookies) {
         return null;
     }
 }
-
-// untuk mengecek role
-function authorizeRole(res, cookies, role){
-    const user = getAuthUser(cookies);
-
-    if (!user) {
-        res.writeHead(302, { Location: "/login" });
-        res.end();
-        return false;
-    }
-
-    if (user.role !== role) {
-        const target =
-            user.role === "admin"
-                ? "/homepage_admin"
-                : "/homepage_user";
-
-        res.writeHead(302, { Location: target });
-        res.end();
-        return false;
-    }
-
-    return true;
-}
-
-const dbPromise = open({
-    filename: path.join(__dirname, "mydb.sqlite"),
-    driver: sqlite3.Database
-});
 
 server.on("request", async(request, response) => {
     const method = request.method;
@@ -173,13 +132,13 @@ server.on("request", async(request, response) => {
     
     // untuk menampilkan halaman login
     if(method === "GET" && urlPath === "/login"){
-        if(cookies.role === "admin"){ // kalau sudah login admin, masuk ke homepage admin
-            response.writeHead(302, {Location: "/homepage_admin"});
-            return response.end();
-        }
+        const user = getAuthUser(cookies);
+        if(user){
+            const target = user.role === "admin"
+                ? "/homepage_admin"
+                : "/homepage_user";
 
-        if(cookies.role === "user"){ // kalau sudah login user, masuk ke homepage user
-            response.writeHead(302, {Location: "/homepage_user"});
+            response.writeHead(302, { Location: target });
             return response.end();
         }
 
@@ -195,7 +154,17 @@ server.on("request", async(request, response) => {
 
     // untuk menampilkan homepage user
     if(method === "GET" && urlPath === "/homepage_user"){
-        if(!authorizeRole(response, cookies, "user")) return; // jika bukan user, return
+        const user = getAuthUser(cookies);
+        if(!user){
+            response.writeHead(302, { Location: "/login" });
+            return response.end();
+        }
+
+        if(user.role !== "user"){
+            response.writeHead(302, { Location: "/homepage_admin" });
+            return response.end();
+        };
+        // if(!authorizeRole(response, cookies, "user")) return; // jika bukan user, return
 
         const filePath = path.join(__dirname, 'minify', 'homepage_user_mini.html');
         // chunking dan compressing
@@ -204,7 +173,17 @@ server.on("request", async(request, response) => {
 
     // untuk menampilkan homepage admin
     if(method === "GET" && urlPath === "/homepage_admin"){
-        if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
+        const user = getAuthUser(cookies);
+        if(!user){
+            response.writeHead(302, { Location: "/login" });
+            return response.end();
+        }
+
+        if(user.role !== "admin"){
+            response.writeHead(302, { Location: "/homepage_user" });
+            return response.end();
+        };
+        // if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
 
         const html = await renderAdminPage();
         const stream = Readable.from(html); //readable stream dari string html
@@ -220,7 +199,12 @@ server.on("request", async(request, response) => {
 
     // admin update status
     if(method === "POST" && urlPath ==="/update_status"){
-        if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
+        const user = getAuthUser(cookies);
+        if(user.role !== "admin"){
+            response.writeHead(302, { Location: "/homepage_user" });
+            return response.end();
+        };
+        // if(!authorizeRole(response, cookies, "admin")) return; // jika bukan admin, return
         return await handleEditStatus(request, response);
     }
 
@@ -228,8 +212,7 @@ server.on("request", async(request, response) => {
     if(method === "GET" && urlPath === "/logout"){
         response.writeHead(302, {
             "Set-Cookie": [
-                `id_user=; HttpOnly; Path=/`,
-                `role=; HttpOnly; Path=/`
+                `auth_token=; HttpOnly; Path=/; Max-Age=0`
             ],
             "Location": "/login" // lempar ke halaman login
         });
@@ -238,12 +221,17 @@ server.on("request", async(request, response) => {
     
     // untuk menampilkan form
     if (method === "GET" && urlPath.startsWith("/reservation")) {
-        if (!authorizeRole(response, cookies, "user")) return;
-
-        if (!cookies.id_user) {
+        const user = getAuthUser(cookies);
+        if(!user){
             response.writeHead(302, { Location: "/login" });
             return response.end();
         }
+
+        if(user.role !== "user"){
+            response.writeHead(302, { Location: "/homepage_admin" });
+            return response.end();
+        };
+        // if (!authorizeRole(response, cookies, "user")) return;
 
         const filePath = path.join(__dirname, 'minify', 'form_reservasi_mini.html');
         return streamCompressed(response, filePath, "text/html");
@@ -256,9 +244,13 @@ server.on("request", async(request, response) => {
 
     // untuk menampilkan card reservasi yang aktif di halaman user
     if (method === "GET" && urlPath === "/reservasi-user") {
-        const cookies = parseCookies(request.headers.cookie);
-        const data = await getUserActiveReservation(cookies.id_user);
-
+        // const cookies = parseCookies(request.headers.cookie);
+        const user = getAuthUser(cookies);
+        if(!user){
+            response.writeHead(401);
+            return response.end();
+        }
+        const data = await getUserActiveReservation(user.id_user);
         return streamJsonCompressed(request, response, data);
     }
 
@@ -270,8 +262,13 @@ server.on("request", async(request, response) => {
 
     // untuk membatalkan reservasi user
     if (method === "POST" && urlPath === "/batal-reservasi") {
-        const cookies = parseCookies(request.headers.cookie);
-        return batalkanReservasi(request, response, cookies.id_user);
+        const user = getAuthUser(cookies);
+        if(!user){
+            response.writeHead(302, { Location: "/login" });
+            return response.end();
+        }
+
+        return batalkanReservasi(request, response, user.id_user);
     }
 });
 

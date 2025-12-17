@@ -83,31 +83,12 @@ export async function loginUser(req, res){
             "Set-Cookie": `
                 auth_token=${token};
                 HttpOnly;
-                SameSite=Strict;
+                SameSite=Lax;
+                Secure;
                 Path=/
             `.replace(/\s+/g, ""),
             "Location": redirectTarget
         });
-
-        
-        // jika user ditemukan dan dibedakan berdasarkan rolenya
-        // if(user.role === 'admin'){
-        //     res.writeHead(302, {
-        //         "Set-Cookie": [
-        //             `id_user=${user.id_user}; HttpOnly; Path=/`,
-        //             `role=${user.role}; HttpOnly; Path=/`
-        //         ],
-        //         "Location": "/homepage_admin"
-        //     })
-        // }else{
-        //     res.writeHead(302, {
-        //         "Set-Cookie": [
-        //             `id_user=${user.id_user}; HttpOnly; Path=/`,
-        //             `role=${user.role}; HttpOnly; Path=/`
-        //         ],
-        //         "Location": "/homepage_user"
-        //     })
-        // }
         return res.end(); 
 
     } catch (compareError) {
