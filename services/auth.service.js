@@ -4,12 +4,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as bcrypt from 'bcrypt';
 import zlib from "node:zlib";
+import { signToken } from "../utils/jwt.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const dbPromise = open({
-    filename: path.join(process.cwd(), "mydb.sqlite"),
+    filename: path.resolve(__dirname, "../mydb.sqlite"),
+    // filename: path.join(__dirname, "mydb.sqlite"),
     driver: sqlite3.Database
 });
 
@@ -65,25 +67,47 @@ export async function loginUser(req, res){
         }
 
         console.log(`Login BERHASIL untuk ${email}!`);
+
+        // token JWT
+        const token = signToken({
+            id_user: user.id_user,
+            role: user.role
+        });
+
+        const redirectTarget =
+            user.role === "admin"
+                ? "/homepage_admin"
+                : "/homepage_user"
+        
+        res.writeHead(302, {
+            "Set-Cookie": `
+                auth_token=${token};
+                HttpOnly;
+                SameSite=Strict;
+                Path=/
+            `.replace(/\s+/g, ""),
+            "Location": redirectTarget
+        });
+
         
         // jika user ditemukan dan dibedakan berdasarkan rolenya
-        if(user.role === 'admin'){
-            res.writeHead(302, {
-                "Set-Cookie": [
-                    `id_user=${user.id_user}; HttpOnly; Path=/`,
-                    `role=${user.role}; HttpOnly; Path=/`
-                ],
-                "Location": "/homepage_admin"
-            })
-        }else{
-            res.writeHead(302, {
-                "Set-Cookie": [
-                    `id_user=${user.id_user}; HttpOnly; Path=/`,
-                    `role=${user.role}; HttpOnly; Path=/`
-                ],
-                "Location": "/homepage_user"
-            })
-        }
+        // if(user.role === 'admin'){
+        //     res.writeHead(302, {
+        //         "Set-Cookie": [
+        //             `id_user=${user.id_user}; HttpOnly; Path=/`,
+        //             `role=${user.role}; HttpOnly; Path=/`
+        //         ],
+        //         "Location": "/homepage_admin"
+        //     })
+        // }else{
+        //     res.writeHead(302, {
+        //         "Set-Cookie": [
+        //             `id_user=${user.id_user}; HttpOnly; Path=/`,
+        //             `role=${user.role}; HttpOnly; Path=/`
+        //         ],
+        //         "Location": "/homepage_user"
+        //     })
+        // }
         return res.end(); 
 
     } catch (compareError) {
