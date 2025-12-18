@@ -13,6 +13,7 @@ const proxy = new https.Server({
    cert: certificate,
 })
 
+// server
 const hostname = "127.0.0.1";
 const port = 3000;
 
@@ -20,6 +21,7 @@ proxy.on("request", (request, response) => {
     const method = request.method;
     const path = request.url;
 
+    // buat request ke server
     const server = http.request({
         host: hostname,
         port: port,
@@ -27,15 +29,16 @@ proxy.on("request", (request, response) => {
         path: path,
         headers: request.headers,
     });
-    request.pipe(server);
+    request.pipe(server); 
 
+    // respon dari server
     server.on("response", (serverResponse) => {
-    response.writeHead(
-        serverResponse.statusCode,
-        serverResponse.headers
-    );
-    serverResponse.pipe(response);
-});
+        response.writeHead(
+            serverResponse.statusCode,
+            serverResponse.headers
+        );
+        serverResponse.pipe(response);
+    });
 });
 
 proxy.listen(8080);
